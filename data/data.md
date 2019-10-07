@@ -1,0 +1,1 @@
+This directory contains all data required for the project, including sample data provided by client

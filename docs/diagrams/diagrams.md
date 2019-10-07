@@ -1,0 +1,1 @@
+This directory contains documentation diagrams, such as use case diagrams or sequence diagrams.
