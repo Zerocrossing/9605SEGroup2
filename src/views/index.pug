@@ -1,0 +1,20 @@
+﻿extends layout
+
+block content
+    h1= title
+    p Welcome to #{title}
+    div.center
+        table.upload
+            thead
+                tr
+                    form(ref='uploadForm' action='/upload' method='post' encType='multipart/form-data')
+                        input(type='file' name='uploaded' multiple)
+                        input(type='submit' value='Upload')
+                        p= status
+            tbody
+                - if (typeof(files) !== 'undefined') { 
+                    each file, i in files
+                        tr
+                            td
+                                p= file
+                - }
