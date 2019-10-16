@@ -1,0 +1,65 @@
+﻿body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+    color: #00B7FF;
+}
+
+button {
+    cursor: pointer;
+}
+
+.navBar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 60px;
+    border-style: none none groove none;
+    border-bottom-width: 10px;
+    background-color: #333333;
+}
+
+.navBar table {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+}
+
+.navButton {
+    display: inline-block;
+}
+
+button.navButton {
+    background-color: #666666;
+    color: black;
+    border: groove;
+    border-radius: 8px;
+    border-width: 2px;
+    border-color: #888888;
+    padding: 15px 20px;
+}
+
+button.navButton:hover {
+    background-color: #777777;
+}
+
+.navButton.homeImg {
+    background-image: url("../img/favicon.ico");
+    background-repeat: no-repeat;
+    background-size: 50px 50px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+}
+
+table.upload, table.upload th, table.upload td{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.upload p {
+    margin: 0px;
+}
