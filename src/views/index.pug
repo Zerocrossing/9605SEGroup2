@@ -9,6 +9,7 @@ block content
                 tr
                     form(ref='uploadForm' action='/upload' method='post' encType='multipart/form-data')
                         input(type='file' name='uploaded' multiple)
+                        input(type='text' name='description' placeholder='description')
                         input(type='submit' value='Upload')
                         p= status
             tbody
@@ -17,4 +18,6 @@ block content
                         tr
                             td
                                 p= file
+                            td 
+                                p= descriptions[file]
                 - }

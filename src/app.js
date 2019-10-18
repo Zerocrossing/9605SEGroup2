@@ -38,18 +38,25 @@ app.use('/about', about);
 
 // File Cache for error messages.
 let fileCache = [];
+let descriptionCache = {};
 
 app.post('/upload', function (req, res) {
+
     if (!req.files || Object.keys(req.files).length === 0) {
         fs.readdir("./uploads/", function (err2, items) {
             if (err2) {
                 console.log(err2);
-                return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache });
+                return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache, descriptions: descriptionCache });
             }
 
-            fileCache = items;
+            updateCaches(items, function (err3) {
+                if (err3) {
+                    console.log(err3);
+                    return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache, descriptions: descriptionCache });
+                }
+            });
         });
-        return res.status(400).render('index', { title: 'Nature\'s Palette', status: 'No file(s) uploaded.', files: fileCache });
+        return res.status(400).render('index', { title: 'Nature\'s Palette', status: 'No file(s) uploaded.', files: fileCache, descriptions: descriptionCache });
     }
 
     let files = req.files[Object.keys(req.files)[0]];
@@ -64,41 +71,86 @@ app.post('/upload', function (req, res) {
         files[file].mv(fileName, function (err) {
             if (err) {
                 console.log(err);
-                return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error uploading a file(s).', files: fileCache });
+                return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error uploading a file(s).', files: fileCache, descriptions: descriptionCache });
             } 
 
-            /*db.files.insert({ file: fileName }, function (err, res) {
-                if (err) console.log(err);
-            });*/
+            fs.writeFile(fileName + "-description", req.body.description, function(err) {
+                if (err) {
+                    console.log(err);
+                    descriptionCache[fileName] = "";
+                    return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error uploading a file(s).', files: fileCache, descriptions: descriptionCache });
+                }
 
-            if (file >= files.length - 1) {
-                /*db.files.find().sort([['_id', -1]], function (err2, res2) {
-                    if (err2) {
-                        console.log(err);
-                        return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).' });
-                    }
-
-                    let fileArr = [];
-                    for (let i = 0; i < res2.length; i++) {
-                        fileArr.push(res2[i].file);
-                    }
-
-                    res.render('index', { title: 'Nature\'s Palette', status: 'File(s) uploaded.', files: fileArr });
+                /*db.files.insert({ file: fileName }, function (err, res) {
+                    if (err) console.log(err);
                 });*/
 
-                fs.readdir("./uploads/", function (err2, items) {
-                    if (err2) {
-                        console.log(err2);
-                        return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache });
-                    }
+                if (file >= files.length - 1) {
+                    /*db.files.find().sort([['_id', -1]], function (err2, res2) {
+                        if (err2) {
+                            console.log(err);
+                            return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).' });
+                        }
+    
+                        let fileArr = [];
+                        for (let i = 0; i < res2.length; i++) {
+                            fileArr.push(res2[i].file);
+                        }
+    
+                        res.render('index', { title: 'Nature\'s Palette', status: 'File(s) uploaded.', files: fileArr });
+                    });*/
 
-                    fileCache = items;
-                    res.render('index', { title: 'Nature\'s Palette', files: items });
-                });
-            }
+                    fs.readdir("./uploads/", function (err2, items) {
+                        if (err2) {
+                            console.log(err2);
+                            return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache, descriptions: descriptionCache });
+                        }
+
+                        updateCaches(items, function (err3) {
+                            if (err3) {
+                                console.log(err3);
+                                return res.status(500).render('index', { title: 'Nature\'s Palette', status: 'Error updating a file(s).', files: fileCache, descriptions: descriptionCache });
+                            }
+
+                            res.render('index', { title: 'Nature\'s Palette', files: fileCache, descriptions: descriptionCache });
+                        });
+                    });
+                }
+            });
         });
     }
 });
+
+function updateCaches(items, callback) {
+    fileCache = [];
+    if (items.length <= 0) {
+        descriptionCache = {};
+        callback(null);
+    }
+
+    let count = 0;
+    for (let i in items) {
+        fs.readFile("./uploads/" + items[i], function (err, data) {
+            if (err) {
+                callback(err);
+            }
+
+            console.log(items[i]);
+
+            if (items[i].length > 11 && items[i].substr(items[i].length - 11) == 'description') {
+
+                let descName = items[i].substring(0, items[i].length - 12);
+                descriptionCache[descName] = data;
+            }
+            else { fileCache.push(items[i]); }
+
+            if (count >= items.length - 1) {
+                callback(null);
+            }
+            count++;
+        });
+    }
+}
 
 // Setup database
 /*db.getCollectionNames(function (err, collections) {
