@@ -1,0 +1,9 @@
+extends layout
+
+block content
+    h1= title
+    p This is an upload page
+
+    form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
+        input(type='file' name='uploaded' multiple)
+        input(type='submit' value='Upload')

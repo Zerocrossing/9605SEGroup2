@@ -101,3 +101,6 @@ typings/
 
 # client node modules
 src/node_modules/*
+
+# intellij dir
+.idea

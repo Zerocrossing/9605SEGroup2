@@ -1,0 +1,11 @@
+extends layout
+
+block content
+    h1= title
+    p This is a search page
+    .search
+        form(action='/search' method='post')
+            input(type='search' name='query' id='searchBar' placeholder='Search')
+            input(type='search' name='attr1' id='searchAttr1' placeholder='Attribute 1')
+            input(type='search' name='attr2' id='searchAttr2' placeholder='Attribute 2')
+            input(type='submit' value='Search')
