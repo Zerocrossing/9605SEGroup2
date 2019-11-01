@@ -9,7 +9,7 @@ However, if the Node server running on Excalibur is down, the page will not be r
 
 To run the server locally:
  1. Clone the repo to a directory.
- 2. Open a terminal window.
+ 2. Open a terminal window in your computer.
  3. Navigate to "src" folder inside of the cloned directory. 
  4. Run the command "npm install" inside of the terminal window.
  5. Run the command "node app" inside of the terminal window.
