@@ -15,6 +15,7 @@ const index = require('./routes/index');
 const search = require('./routes/search');
 const upload = require('./routes/upload');
 const about = require('./routes/about');
+const download = require('./routes/download');
 
 // load config
 const config = require('./config.json');
@@ -38,6 +39,7 @@ app.use('/', index);
 app.use('/about', about);
 app.use('/upload', upload);
 app.use('/search', search);
+app.use('/download', download);
 
 // start server
 app.set('port', process.env.PORT || config.port);
