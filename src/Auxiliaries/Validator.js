@@ -1,5 +1,5 @@
-// --------------samira
-exports.checkMandatoryFields =function(json){
+
+function checkMandatoryFields(json){
     //should be in config
     let mandatoryFields = ['FileName','catalogueNumber','genus','Patch','LightAngle1','LightAngle2','ProbeAngle1','ProbeAngle2','Replicate']
     let jsonObj = JSON.parse(json);
@@ -19,7 +19,7 @@ exports.checkMandatoryFields =function(json){
 
 
 }
-exports.matchRawFilesAndMetadataFiles= function (rawFileNames,metadataRawFileNames){
+function matchRawFilesAndMetadataFiles (rawFileNames,metadataRawFileNames){
     rawFileNames.sort();
     metadataRawFileNames.sort();
 
@@ -31,7 +31,7 @@ exports.matchRawFilesAndMetadataFiles= function (rawFileNames,metadataRawFileNam
     return true;
 
 }
-exports.csvJSON = function (csv){
+function csvJSON(csv){
     //let requiredField=['FileName','','','','','','']
     var lines=csv.split("\r\n");
 
@@ -64,3 +64,47 @@ exports.csvJSON = function (csv){
     };
     //return JSON.stringify(result); //JSON
 }
+function validateUploadedFiles(files){
+
+
+    let rawFileNames =[]
+    let retVal;
+    let csvFileNo = 0;
+   // let files = req.files;
+    //csv and Transmission should be in config
+    // just one csv file is allowed, all the others should be rawfile
+    for (let i = 0; i < files.length; i++){
+        let splittedName = files[i].name.split(".");
+        var ext = splittedName[splittedName.length-1];
+
+        if(ext === 'csv'){
+
+            csvFileNo++;
+            if(csvFileNo>1)
+            {
+                console.log("You are allowed to submit just one metadata file in each upload!");
+                //Stop and show error message to the user
+            }
+            let content  = files[i].data.toString();
+            retVal = csvJSON(content);
+
+
+        } else if (ext ==='Transmission')
+        {
+            rawFileNames.push(splittedName[0]+splittedName[1])
+        }
+        else
+        {
+            console.log("There are invalid type of file in the submission!")
+            //Stop and show error message to the user
+        }
+    }
+
+    let isMatch = matchRawFilesAndMetadataFiles(rawFileNames,retVal.fileNames)
+    let emptyMandatoryFields = checkMandatoryFields(retVal.json)
+
+
+}
+
+exports.csvJSON = csvJSON;
+exports.validateUploadedFiles = validateUploadedFiles;
