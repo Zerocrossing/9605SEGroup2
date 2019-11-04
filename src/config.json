@@ -1,4 +1,10 @@
 {
   "port": 3332,
-  "debug": false
+  "debug": false,
+  "db": {
+    "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
+    "dbName": "project",
+    "dataCollection": "dataTest",
+    "userCollection": "userTest"
+  }
 }
