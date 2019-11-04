@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('../Auxiliaries/Validator')
-const db = require('../database')
+const db = require('../Auxiliaries/database')
 
 // Upload page render
 router.get('/', function (req, res) {
@@ -48,6 +48,10 @@ router.post('/', function (req, res) {
 
     let isMatch = validator.matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames)
     let emptyMandatoryFields = validator.checkMandatoryFields(retVal.json)
+
+    // save files to db
+    let metaObj = retVal;
+    let saveCallback = db.saveData(metaObj, files); //no callback right now, but maybe later
 });
 
 module.exports = router;

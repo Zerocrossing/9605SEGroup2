@@ -6,5 +6,6 @@
     "dbName": "project",
     "dataCollection": "dataTest",
     "userCollection": "userTest"
-  }
+  },
+  "dataFilePath" : "./data"
 }
