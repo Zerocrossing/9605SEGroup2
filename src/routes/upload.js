@@ -15,11 +15,9 @@ router.post('/', function (req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
-    //region Validation
 
-   // let files = req.files.uploaded;
-    let isMatch = validator.validateUploadedFiles(req.files.uploaded)
-
+    let isValid = validator.validateSubmission(req)
+    console.log(isValid?'submission is valid':'submission is invalid')
 
 });
 

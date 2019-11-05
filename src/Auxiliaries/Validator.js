@@ -1,6 +1,7 @@
 
 function checkMandatoryFields(json){
     //should be in config
+    let isValid=true;
     let mandatoryFields = ['FileName','catalogueNumber','genus','Patch','LightAngle1','LightAngle2','ProbeAngle1','ProbeAngle2','Replicate']
     let jsonObj = JSON.parse(json);
 
@@ -12,11 +13,15 @@ function checkMandatoryFields(json){
         function myFunction2(item1, index1) {
             // console.log(item[item1],item1);
             if(item[item1] === '')
+            {
+                isValid = false;
                 console.log('fields:\n Row: ',index+1,'| Attribute: ',item1);
+            }
+
         }
     }
 
-
+    return isValid;
 
 }
 function matchRawFilesAndMetadataFiles (rawFileNames,metadataRawFileNames){
@@ -64,15 +69,54 @@ function csvJSON(csv){
     };
     //return JSON.stringify(result); //JSON
 }
-function validateUploadedFiles(files){
+function validateEmbargo(embargo,embargoDate){
+   // let selectedRadioBtn= req.body.radio;
 
+
+   // if(embargo == 'yes')
+   // {
+        //let d= req.body.date;
+        if(embargoDate=="") {
+            console.log("Please enter the date!")
+            return false;
+        }
+
+        let date =  embargoDate.split('-');
+        let formattedDate = date[0]+'/'+date[1]+'/'+date[2];
+        let dateObj=new Date(formattedDate);
+
+        var today = new Date();
+        let todayYear =today.getFullYear();
+        let todayMonth =today.getMonth()+1;
+        let todayDate =today.getDate();
+
+        let oneYearLater = new Date(todayYear+1+'/'+todayMonth+'/'+todayDate);
+
+        if(dateObj >oneYearLater ) {
+            console.log("Embargo Error!");
+            return false;
+        }
+
+        return true;
+
+   // }
+
+}
+function validateUploadedFiles(files) {
 
     let rawFileNames =[]
     let retVal;
     let csvFileNo = 0;
-   // let files = req.files;
+    // let files = req.files;
     //csv and Transmission should be in config
     // just one csv file is allowed, all the others should be rawfile
+    //Temporary Validation-----------
+    if(typeof files.length === 'undefined')
+    {
+        console.log("Wrong number of file!")
+        return false;
+    }
+    //-------------------------------
     for (let i = 0; i < files.length; i++){
         let splittedName = files[i].name.split(".");
         var ext = splittedName[splittedName.length-1];
@@ -83,6 +127,7 @@ function validateUploadedFiles(files){
             if(csvFileNo>1)
             {
                 console.log("You are allowed to submit just one metadata file in each upload!");
+                return false;
                 //Stop and show error message to the user
             }
             let content  = files[i].data.toString();
@@ -96,15 +141,27 @@ function validateUploadedFiles(files){
         else
         {
             console.log("There are invalid type of file in the submission!")
+            return false;
             //Stop and show error message to the user
         }
     }
 
-    let isMatch = matchRawFilesAndMetadataFiles(rawFileNames,retVal.fileNames)
-    let emptyMandatoryFields = checkMandatoryFields(retVal.json)
+    let v1 = matchRawFilesAndMetadataFiles(rawFileNames,retVal.fileNames)
+    let v2 = checkMandatoryFields(retVal.json)
 
-
+    return v1&v2
+    
+}
+function validateSubmission(req){
+    let v1=true;
+    let v2 =true;
+    if(req.body.radio == 'yes')
+        v1 = validateEmbargo(req.body.radio, req.body.date)
+    v2 = validateUploadedFiles(req.files.uploaded);
+    return v1&v2;
+    /*return (validateEmbargo(req.body.radio, req.body.date)
+        &&validateUploadedFiles(req.files.uploaded));*/
 }
 
 exports.csvJSON = csvJSON;
-exports.validateUploadedFiles = validateUploadedFiles;
+exports.validateSubmission = validateSubmission;
