@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var validator = require('../Auxiliaries/Validator')
-const db = require('../database')
+const db = require('../Auxiliaries/database')
 
 // Upload page render
 router.get('/', function (req, res) {
