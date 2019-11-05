@@ -7,3 +7,40 @@ block content
     form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
         input(type='file' name='uploaded' multiple)
         input(type='submit' value='Upload')
+
+        table
+            tr
+                th Embargo?
+                th Date:
+            tr
+                th
+                    label.radio-inline
+                        input(id = 'yes_radio' type='radio' name='radio' value='yes'  onclick="makeDateVisible()" checked=true)
+                        | Yes
+                    label.radio-inline
+                        input(id='no_radio' type='radio' name='radio' value='no' onclick="makeDateInvisible()" )
+                        | No
+
+                th
+                    input(id='date' type='date' name='date' value='date')
+
+
+
+
+
+    script.
+        function makeDateVisible()
+        {
+           document.getElementById('date').style.visibility='visible';
+           //document.getElementById('no_radio').checked=false;
+        }
+        function makeDateInvisible() {
+            document.getElementById('date').style.visibility = 'hidden';
+            document.getElementById('date').value=""
+           // document.getElementById('yes_radio').checked=false;
+        }
+
+
+
+
+
