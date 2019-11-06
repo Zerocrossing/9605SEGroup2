@@ -4,28 +4,57 @@ block content
     h1= title
     p This is an upload page
 
-    form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
-        input(type='file' name='uploaded' multiple)
-        input(type='submit' value='Upload')
-
+    div(class='upload submission1')
         table
             tr
-                th Embargo?
-                th(id='dateLabel') Date:
+                td
+                    h2 Submission Instructions
+                    pre 
+                        | I'll tell you a story about Jack Mcgory. Want me to begin it? That is all that is in it.
+                        | I'll tell you a story about Jack a Nory. And now that my story's begun; I'll tell you another
+                        | of Jack and his brother. And now my story is done.
+                    pre
+                        | Hey diddle diddle, the cat and the fiddle.
+                        | The cow jumped over the moon. 
+                        | The little dog laughed to see such a sport. 
+                        | And the dish ran away with the spoon.
             tr
-                th
-                    label.radio-inline
-                        input(id = 'yes_radio' type='radio' name='radio' value='yes'  onclick="makeDateVisible()" checked=true)
-                        | Yes
-                    label.radio-inline
-                        input(id='no_radio' type='radio' name='radio' value='no' onclick="makeDateInvisible()" )
-                        | No
+                td
+                    label 
+                        input(type='checkbox' id='sub1Check')
+                        | I agree
+            tr
+                td
+                    input(type='submit' value='Start' onClick="nextSub(2)")
+        
+    div(class='upload submission2' style='display: none;')
+        h2 Submission Steps
+        p Basic Information
+        form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
+            input(type='file' name='uploaded' multiple)
+            input(type='submit' value='Upload')
 
-                th
-                    input(id='date' type='date' name='date' value='date')
+            table
+                tr
+                    th Embargo?
+                    th(id='dateLabel') Date:
+                tr
+                    th
+                        label.radio-inline
+                            input(id = 'yes_radio' type='radio' name='radio' value='yes'  onclick="makeDateVisible()" checked=true)
+                            | Yes
+                        label.radio-inline
+                            input(id='no_radio' type='radio' name='radio' value='no' onclick="makeDateInvisible()" )
+                            | No
 
+                    th
+                        input(id='date' type='date' name='date' value='date')
+                tr
+                    input(type='submit' value='Start' onClick="nextSub(3)")
 
-
+    div(class='upload submission3' style='display: none;')
+        h2 Submission Steps
+        p Upload Files
 
 
     script.
@@ -41,7 +70,18 @@ block content
             document.getElementById('dateLabel').style.visibility='hidden';
            // document.getElementById('yes_radio').checked=false;
         }
-
+        function nextSub(sub) {
+            if (sub === 2) {
+                if ($('#sub1Check').is(":checked")) {
+                    $('#sub1Check').parent().removeClass("error1");
+                }
+                else {
+                    $('#sub1Check').parent().addClass("error1");
+                }
+            }
+            $('.submission' + (sub -1 )).hide();
+            $('.submission' + sub).show();
+        }
 
 
 

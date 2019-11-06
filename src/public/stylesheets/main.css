@@ -55,19 +55,30 @@ button.navButton:hover {
     cursor: pointer;
 }
 
-table.upload, table.upload th, table.upload td{
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-
-table.upload p {
-    margin: 0px;
-}
-
 .search
 {
     display: block;
     width:50px;
     height: 50px;
     margin:2px 0 20px 10px;
+}
+
+.upload {
+    text-align: center;
+    width: 50%;
+    margin: 0 auto;
+    background-color: #BBBBBB;
+    border: groove;
+    border-radius: 8px;
+    border-width: 2px;
+}
+
+.upload table {
+    margin: 0 auto;
+}
+
+.error1 {
+    border: solid;
+    border-width: 2px;
+    border-color: #FF0000;
 }
