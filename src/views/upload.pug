@@ -4,42 +4,241 @@ block content
     h1= title
     p This is an upload page
 
-    form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
-        input(type='file' name='uploaded' multiple)
-        input(type='submit' value='Upload')
+    div(class='submissions')
+        div(class='upload submission1')
+            table
+                tr
+                    td
+                        h2 Submission Instructions
+                        pre 
+                            | I'll tell you a story about Jack Mcgory. Want me to begin it? That is all that is in it.
+                            | I'll tell you a story about Jack a Nory. And now that my story's begun; I'll tell you another
+                            | of Jack and his brother. And now my story is done.
+                        pre
+                            | Hey diddle diddle, the cat and the fiddle.
+                            | The cow jumped over the moon. 
+                            | The little dog laughed to see such a sport. 
+                            | And the dish ran away with the spoon.
+                tr
+                    td
+                        label 
+                            input(type='checkbox' id='sub1Check')
+                            | I agree
+                tr
+                    td
+                        input(type='button' value='Start' onClick="nextSub(2)")
+            
+        div(class='upload submission2' style='display: none;')
+            h2 Submission Steps
+            p Basic Information
+            form(rel='uploadInfoForm' action='/upload' method='post' encType='multipart/form-data')
+                table(id="uploadInfo" style='padding: 10px; text-align: left;')
+                    tr  
+                        td
+                            label
+                                | Name: 
+                                span(style='color: red; ') * 
+                    tr
+                        td
+                            input(id='nameF' type='text' placeholder="First Name")
+                        td
+                            input(id='nameL' type='text' placeholder="Last Name")
+                    tr
+                        td
+                            label
+                                | Email: 
+                                span(style='color: red; ') * 
+                        td
+                            label Institution Affiliation
+                    tr
+                        td
+                            input(id='email' type='text')
+                        td
+                            input(id='institution' type='text')
+                    tr
+                        td
+                            label Type of Data: 
+                        td
+                            label Data From: 
+                    tr
+                        td
+                            select(id='typeOfData')
+                                option(value='transmittance')
+                                    | Transmittance
+                                option(value='reflectance')
+                                    | Reflectance
+                                option(value='irradiance')
+                                    | Irradiance
+                        td
+                            select(id='dataFrom')
+                                option(value='field')
+                                    | Field
+                                option(value='museum')
+                                    | Museum
+                    tr
+                        td Has the data been published?
+                        td(id='refLabel' style='display: none;') Reference: 
+                            span(style='color: red') *
+                        td(id='doiLabel' style='display: none;') DOI: 
+                            span(style='color: red') *
+                    tr
+                        td
+                            label
+                                input(id='publishedY' type='radio' name='publishRadio' value='yes' onclick='makePublishVisible()')
+                                | Yes
+                            label
+                                input(id='publishedN' type='radio' name='publishRadio' value='no' onclick='makePublishInvisible()' checked)
+                                | No
+                        td
+                            input(id='reference' type='text' style='display: none;')
+                        td
+                            input(id='doi' type='text' style='display: none;')
+                    tr
+                        td Embargo?
+                        td(id='dateLabel' style='display: none;') Date:
+                    tr
+                        td
+                            label.radio-inline
+                                input(id='embargoY' type='radio' name='embargoRadio' value='yes'  onclick="makeDateVisible()")
+                                | Yes
+                            label.radio-inline
+                                input(id='embargoN' type='radio' name='embargoRadio' value='no' onclick="makeDateInvisible()" checked)
+                                | No
+                        td
+                            input(id='date' type='date' name='date' value='date' style='display: none;')
+                input(type='button' value='Next' onClick="nextSub(3)")
 
-        table
-            tr
-                th Embargo?
-                th Date:
-            tr
-                th
-                    label.radio-inline
-                        input(id = 'yes_radio' type='radio' name='radio' value='yes'  onclick="makeDateVisible()" checked=true)
-                        | Yes
-                    label.radio-inline
-                        input(id='no_radio' type='radio' name='radio' value='no' onclick="makeDateInvisible()" )
-                        | No
-
-                th
-                    input(id='date' type='date' name='date' value='date')
-
-
-
+        div(class='upload submission3' style='display: none;')
+            h2 Submission Steps
+            p Upload Files
+            form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
+            table
+                tr
+                    td
+                        label 
+                            | MetaData File: 
+                            span(style='color: red;') *
+                    td
+                        label 
+                            | Raw Files: 
+                            span(style='color: red;') *
+                tr  
+                    td
+                        input(type='file' name='meta')
+                    td
+                        input(type='file' name='raw' multiple)
+                tr
+                    td
+                        input(type='button' value='Back' onclick='nextSub(2)') 
+                    td
+                        input(type='submit' value='Upload')
 
 
     script.
         function makeDateVisible()
         {
-           document.getElementById('date').style.visibility='visible';
-           //document.getElementById('no_radio').checked=false;
+           $('#uploadInfo #date').show();
+           $('#uploadInfo #dateLabel').show();
         }
         function makeDateInvisible() {
-            document.getElementById('date').style.visibility = 'hidden';
-            document.getElementById('date').value=""
-           // document.getElementById('yes_radio').checked=false;
+           $('#uploadInfo #date').hide();
+           $('#uploadInfo #date').val("");
+           $('#uploadInfo #date').removeClass("error1");
+           $('#uploadInfo #dateLabel').hide();
+        }
+        function makePublishVisible() {
+           $('#uploadInfo #reference').show();
+           $('#uploadInfo #doi').show();
+           $('#uploadInfo #refLabel').show();
+           $('#uploadInfo #doiLabel').show();
+        }
+        function makePublishInvisible() {
+           $('#uploadInfo #reference').hide();
+           $('#uploadInfo #reference').val("");
+           $('#uploadInfo #reference').removeClass("error1");
+           $('#uploadInfo #doi').hide();
+           $('#uploadInfo #doi').val("");
+           $('#uploadInfo #doi').removeClass("error1");
+           $('#uploadInfo #refLabel').hide();
+           $('#uploadInfo #doiLabel').hide();
         }
 
+        function nextSub(sub) {
+            switch(sub) {
+                case 2:
+                    if ($('#sub1Check').is(":checked")) {
+                        $('#sub1Check').parent().removeClass("error1");
+                        $('.submission1').hide();
+                        $('.submission3').hide();
+                        $('.submission2').show();
+                    }
+                    else {
+                        $('#sub1Check').parent().addClass("error1");
+                    }
+                    break;
+                case 3:
+                    if (checkFields()) {
+                        $('.submission2').hide();
+                        $('.submission3').show();
+                    }
+                    break;
+            }
+        }
+
+        function checkFields() {
+            let fieldList = ['#nameF', '#nameL', '#email', '#date', '#reference', '#doi'];
+
+            if ($('#uploadInfo #nameF').val() === '') {
+                $('#uploadInfo #nameF').addClass('error1');
+            }
+            else {
+                $('#uploadInfo #nameF').removeClass('error1');
+            }
+            if ($('#uploadInfo #nameL').val() === '') {
+                $('#uploadInfo #nameL').addClass('error1');
+            }
+            else {
+                $('#uploadInfo #nameL').removeClass('error1');
+            }
+            if ($('#uploadInfo #email').val() === '') {
+                $('#uploadInfo #email').addClass('error1');
+            }
+            else {
+                $('#uploadInfo #email').removeClass('error1');
+            }
+            if ($('#uploadInfo #embargoY').is(":checked")) {
+                // Todo: compute calculations in UTC.
+                let dateCalc = (new Date() - new Date($('#uploadInfo #date').val()))/1000/60/60/24/365;
+                if ($('#uploadInfo #date').val() === '' || dateCalc < -1 || dateCalc >= 0) {
+                    $('#uploadInfo #date').addClass('error1');
+                }
+                else {
+                    $('#uploadInfo #date').removeClass('error1');
+                }
+            }
+            if ($('#uploadInfo #publishedY').is(":checked")) {
+                if ($('#uploadInfo #reference').val() === '') {
+                    $('#uploadInfo #reference').addClass('error1');
+                }
+                else {
+                    $('#uploadInfo #reference').removeClass('error1');
+                }
+                if ($('#uploadInfo #doi').val() === '') {
+                    $('#uploadInfo #doi').addClass('error1');
+                }
+                else {
+                    $('#uploadInfo #doi').removeClass('error1');
+                }
+            }
+
+            for (let i=0; i < fieldList.length; i++) {
+                if ($('#uploadInfo ' + fieldList[i]).hasClass('error1')) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
 
 
