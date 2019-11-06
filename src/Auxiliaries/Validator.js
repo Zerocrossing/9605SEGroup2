@@ -1,9 +1,12 @@
-
+const { fork } = require('child_process');
+const { Worker } = require('worker_threads')
+//const jsPDF = require('jspdf');
 function checkMandatoryFields(json){
     //should be in config
     let isValid=true;
     let mandatoryFields = ['FileName','catalogueNumber','genus','Patch','LightAngle1','LightAngle2','ProbeAngle1','ProbeAngle2','Replicate']
     let jsonObj = JSON.parse(json);
+    console.log(jsonObj)
 
     jsonObj.forEach(myFunction);
     function myFunction(item, index) {
@@ -15,7 +18,7 @@ function checkMandatoryFields(json){
             if(item[item1] === '')
             {
                 isValid = false;
-                console.log('fields:\n Row: ',index+1,'| Attribute: ',item1);
+                console.log('fields:\n Row: ',index+1,'| Attribute: ',item1+ ' value : '+item[item1]+'file'+ item['FileName']);
             }
 
         }
@@ -105,6 +108,7 @@ function validateEmbargo(embargo,embargoDate){
 function validateUploadedFiles(files) {
 
     let rawFileNames =[]
+    let rawFiles =[]
     let retVal;
     let csvFileNo = 0;
     // let files = req.files;
@@ -137,6 +141,7 @@ function validateUploadedFiles(files) {
         } else if (ext ==='Transmission')
         {
             rawFileNames.push(splittedName[0]+splittedName[1])
+            rawFiles.push(files[i]);
         }
         else
         {
@@ -148,7 +153,14 @@ function validateUploadedFiles(files) {
 
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames,retVal.fileNames)
     let v2 = checkMandatoryFields(retVal.json)
-
+   // console.log(rawFiles)
+    /*for (let i = 0; i < rawFiles.length; i++){
+        let content  = rawFiles[i].data.toString();
+        console.log(content)
+        let v3 = check1(content);
+    }*/
+   // console.log("---)))------",typeof rawFiles)
+    validate(rawFiles)
     return v1&v2
     
 }
@@ -162,6 +174,55 @@ function validateSubmission(req){
     /*return (validateEmbargo(req.body.radio, req.body.date)
         &&validateUploadedFiles(req.files.uploaded));*/
 }
+
+
+
+function validate(rawFiles){
+    // fork another process
+    const process = fork('./Auxiliaries/rawFilesValidator.js');
+    //add new attribute to rawFiles
+    for (let i = 0; i < rawFiles.length; i++){
+        rawFiles[i]["strContent"] = rawFiles[i].data.toString();
+    }
+
+    process.send( {rawFiles});
+    // listen for messages from forked process
+    process.on('message', (message) => {
+
+       // console.log(`Number of files processed ${message.counter}`);
+        console.log("Files With Small Negative Value"+message.returnValue.filesWithSmallNegative)
+        console.log("Files With Large Negative Value"+message.returnValue.filesWithLargeNegative)
+        console.log("Number of files processed : "+message.returnValue.count)
+
+       /* var jsPDF = require('jspdf');
+
+        var doc = new jsPDF();
+        doc.text("Hello", 10, 10);
+        doc.save('a4.pdf')*/
+    });
+   // return response.json({ status: true, sent: true });
+}
+//}
+/*function runService(workerData) {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('./Auxiliaries/rawFilesValidator.js', { workerData });
+        worker.on('message', resolve);
+        worker.on('error', reject);
+        worker.on('exit', (code) => {
+            if (code !== 0)
+                reject(new Error(`Worker stopped with exit code ${code}`));
+        })
+    })
+}
+
+async function run() {
+    const result = await runService('abc.js')
+    console.log(result);
+}
+
+//run().catch(err => console.error(err))*/
+
+
 
 exports.csvJSON = csvJSON;
 exports.validateSubmission = validateSubmission;
