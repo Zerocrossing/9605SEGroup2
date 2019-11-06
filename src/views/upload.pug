@@ -11,7 +11,7 @@ block content
         table
             tr
                 th Embargo?
-                th Date:
+                th(id='dateLabel') Date:
             tr
                 th
                     label.radio-inline
@@ -32,11 +32,13 @@ block content
         function makeDateVisible()
         {
            document.getElementById('date').style.visibility='visible';
+           document.getElementById('dateLabel').style.visibility='visible';
            //document.getElementById('no_radio').checked=false;
         }
         function makeDateInvisible() {
             document.getElementById('date').style.visibility = 'hidden';
             document.getElementById('date').value=""
+            document.getElementById('dateLabel').style.visibility='hidden';
            // document.getElementById('yes_radio').checked=false;
         }
 
