@@ -10,7 +10,7 @@ block content
             input(type='submit' value='Search')
     .searchResults
         br
-        if results
+        if results != undefined
             h3 Found #{results.length} results:
             ul
                 for result, num in results
