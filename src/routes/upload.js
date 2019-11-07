@@ -16,8 +16,13 @@ router.post('/', function (req, res) {
         return res.status(400).send('No files were uploaded.');
     }
 
-    let msg = validator.validateSubmission(req) ? "Files successfully uploaded!" : "There was an error uploading the files.";
-    res.render('upload', { title: 'Nature\'s Palette', msg: msg });
+    if (validator.validateSubmission(req)) {
+        res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!' });
+        validator.validate(req.files.raw);
+    }
+    else {
+        res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.' });
+    }
 });
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const { fork } = require('child_process');
-// const { Worker } = require('worker_threads')
+//const { Worker } = require('worker_threads')
 const fs = require('fs');
 var nodemailer = require('nodemailer');
 
@@ -16,9 +16,6 @@ function validateSubmission(req) {
 
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
     let v2 = checkMandatoryFields(retVal.json);
-
-    // Second validation should take place after first has been sent back
-    validate(rawFiles);
 
     return (v1 && v2);
 }
