@@ -1,6 +1,8 @@
 const { fork } = require('child_process');
 const { Worker } = require('worker_threads')
-//const jsPDF = require('jspdf');
+const fs = require('fs');
+var nodemailer = require('nodemailer');
+
 function checkMandatoryFields(json){
     //should be in config
     let isValid=true;
@@ -40,7 +42,7 @@ function matchRawFilesAndMetadataFiles (rawFileNames,metadataRawFileNames){
 
 }
 function csvJSON(csv){
-    //let requiredField=['FileName','','','','','','']
+
     var lines=csv.split("\r\n");
 
     var result = [];
@@ -194,31 +196,82 @@ function validate(rawFiles){
         console.log("Files With Large Negative Value"+message.returnValue.filesWithLargeNegative)
         console.log("Number of files processed : "+message.returnValue.count)
 
-       /* var jsPDF = require('jspdf');
 
-        var doc = new jsPDF();
-        doc.text("Hello", 10, 10);
-        doc.save('a4.pdf')*/
+        let filesWithSmallNegative_Formatted = message.returnValue.filesWithSmallNegative.join('\n');
+        let filesWithLargeNegative_Formatted = message.returnValue.filesWithLargeNegative.join('\n');
+
+        fs.appendFile('Report_FilesWithSmallNegative.csv', filesWithSmallNegative_Formatted, function (err) {
+            if (err) throw err;
+            console.log('Saved!');
+        });
+        fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
+            if (err) throw err;
+            console.log('Saved!');
+        });
+
+        var transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'g2software2019@gmail.com',
+                pass: 'Gg@123456'
+            }
+        });
+
+        var mailOptions = {
+            from: 'g2sogtware2019@gmail.com',
+            to: 'pasargad63@yahoo.com',
+            subject: 'File Validation Report',
+            text: 'Please see the attached files concerning your last submission on nature palette!',
+            attachments: [
+                {
+                    filename: 'Report_FilesWithSmallNegative.csv',
+                    path: './Report_FilesWithSmallNegative.csv'
+                },
+                {
+                    filename: 'Report_FilesWithLargeNegative.csv',
+                    path: './Report_FilesWithLargeNegative.csv'
+                }
+            ]
+
+        };
+
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                fs.access('./Report_FilesWithLargeNegative.csv',error=>{
+                    if(!error){
+                        fs.unlink('./Report_FilesWithLargeNegative.csv',function (error) {
+                            console.log(error)
+                            
+                        });
+                    }else{
+                        console.log(error);
+                    }
+                });
+
+                fs.access('./Report_FilesWithSmallNegative.csv',error=>{
+                    if(!error){
+                        fs.unlink('./Report_FilesWithSmallNegative.csv',function (error) {
+                            console.log(error)
+
+                        });
+                    }else{
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+
+
+
     });
    // return response.json({ status: true, sent: true });
 }
-//}
-/*function runService(workerData) {
-    return new Promise((resolve, reject) => {
-        const worker = new Worker('./Auxiliaries/rawFilesValidator.js', { workerData });
-        worker.on('message', resolve);
-        worker.on('error', reject);
-        worker.on('exit', (code) => {
-            if (code !== 0)
-                reject(new Error(`Worker stopped with exit code ${code}`));
-        })
-    })
-}
 
-async function run() {
-    const result = await runService('abc.js')
-    console.log(result);
-}
+
 
 //run().catch(err => console.error(err))*/
 
