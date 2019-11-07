@@ -16,9 +16,8 @@ router.post('/', function (req, res) {
         return res.status(400).send('No files were uploaded.');
     }
 
-    let isValid = validator.validateSubmission(req)
-    console.log(isValid?'submission is valid':'submission is invalid')
-
+    let msg = validator.validateSubmission(req) ? "Files successfully uploaded!" : "There was an error uploading the files.";
+    res.render('upload', { title: 'Nature\'s Palette', msg: msg });
 });
 
 module.exports = router;
