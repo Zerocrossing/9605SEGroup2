@@ -34,12 +34,7 @@ module.exports.saveData = function (metaObject, fileObject) {
 // saves the metadata to the database
 function saveMetaToDatabase(metaObject) {
     let documents;
-    // currently objects come in as json strings
-    if (typeof metaObject.json === 'string' || metaObject.json instanceof String) {
-        documents = JSON.parse(metaObject.json);
-    } else {
-        documents = metaObject.json;
-    }
+    documents = metaObject;
     //todo saving the same file multiple times results in multiple copies entering the DB
     client.connect(err => {
         assert.equal(err, null);
@@ -78,10 +73,14 @@ module.exports.getQueryResults = function (query) {
 
 function parseQuery(query) {
     //todo logic
-    return query;
+    return {}; //todo right now this always returns en empty query, which returns the whole DB
 }
 
 async function getResultsFromDB(query) {
     //todo logic
-    let results = [];
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(dataCollectionName);
+    let result = await collection.find(query).toArray();
+    return result;
 }

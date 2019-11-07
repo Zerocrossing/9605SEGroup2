@@ -40,9 +40,9 @@ block content
                                 span(style='color: red; ') * 
                     tr
                         td
-                            input(id='nameF' type='text' placeholder="First Name")
+                            input(id='nameF' type='text' placeholder="First Name" name='nameF' form='uploadForm')
                         td
-                            input(id='nameL' type='text' placeholder="Last Name")
+                            input(id='nameL' type='text' placeholder="Last Name" name='nameL' form='uploadForm')
                     tr
                         td
                             label
@@ -52,9 +52,9 @@ block content
                             label Institution Affiliation
                     tr
                         td
-                            input(id='email' type='text')
+                            input(id='email' type='text' name='email' form='uploadForm')
                         td
-                            input(id='institution' type='text')
+                            input(id='institution' type='text' name='institution' form='uploadForm')
                     tr
                         td
                             label Type of Data: 
@@ -62,7 +62,7 @@ block content
                             label Data From: 
                     tr
                         td
-                            select(id='typeOfData')
+                            select(id='typeOfData' name='typeOfData' form='uploadForm')
                                 option(value='transmittance')
                                     | Transmittance
                                 option(value='reflectance')
@@ -70,7 +70,7 @@ block content
                                 option(value='irradiance')
                                     | Irradiance
                         td
-                            select(id='dataFrom')
+                            select(id='dataFrom' name='dataFrom' form='uploadForm')
                                 option(value='field')
                                     | Field
                                 option(value='museum')
@@ -84,34 +84,34 @@ block content
                     tr
                         td
                             label
-                                input(id='publishedY' type='radio' name='publishRadio' value='yes' onclick='makePublishVisible()')
+                                input(id='publishedY' type='radio' name='publishRadio' value='true' onclick='makePublishVisible()' form='uploadForm')
                                 | Yes
                             label
-                                input(id='publishedN' type='radio' name='publishRadio' value='no' onclick='makePublishInvisible()' checked)
+                                input(id='publishedN' type='radio' name='publishRadio' value='false' onclick='makePublishInvisible()' form='uploadForm' checked)
                                 | No
                         td
-                            input(id='reference' type='text' style='display: none;')
+                            input(id='reference' type='text' style='display: none;' name='reference' form='uploadForm')
                         td
-                            input(id='doi' type='text' style='display: none;')
+                            input(id='doi' type='text' style='display: none;' name='doi' form='uploadForm')
                     tr
                         td Embargo?
                         td(id='dateLabel' style='display: none;') Date:
                     tr
                         td
                             label.radio-inline
-                                input(id='embargoY' type='radio' name='embargoRadio' value='yes'  onclick="makeDateVisible()")
+                                input(id='embargoY' type='radio' name='embargoRadio' value='true'  onclick="makeDateVisible()" form='uploadForm')
                                 | Yes
                             label.radio-inline
-                                input(id='embargoN' type='radio' name='embargoRadio' value='no' onclick="makeDateInvisible()" checked)
+                                input(id='embargoN' type='radio' name='embargoRadio' value='false' onclick="makeDateInvisible()" form='uploadForm' checked)
                                 | No
                         td
-                            input(id='date' type='date' name='date' value='date' style='display: none;')
+                            input(id='date' type='date' name='date' value='date' style='display: none;' form='uploadForm')
                 input(type='button' value='Next' onClick="nextSub(3)")
 
         div(class='upload submission3' style='display: none;')
             h2 Submission Steps
             p Upload Files
-            form(rel='uploadForm' action='/upload' method='post' encType='multipart/form-data')
+            form(id='uploadForm' action='/upload' method='post' encType='multipart/form-data')
             table
                 tr
                     td
@@ -124,19 +124,20 @@ block content
                             span(style='color: red;') *
                 tr  
                     td
-                        input(type='file' name='meta')
+                        input(type='file' name='meta' form='uploadForm')
                     td
-                        input(type='file' name='raw' multiple)
+                        input(type='file' name='raw' form='uploadForm' multiple)
                 tr
                     td
                         input(type='button' value='Back' onclick='nextSub(2)') 
                     td
-                        input(type='submit' value='Upload')
-
+                        input(type='submit' value='Upload' form='uploadForm')
+    div(style='text-align: center;')
+        p= msg
+        
 
     script.
-        function makeDateVisible()
-        {
+        function makeDateVisible() {
            $('#uploadInfo #date').show();
            $('#uploadInfo #dateLabel').show();
         }

@@ -104,3 +104,4 @@ src/node_modules/*
 
 # intellij dir
 .idea
+src/.vs/

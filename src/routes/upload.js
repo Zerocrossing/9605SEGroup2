@@ -15,10 +15,14 @@ router.post('/', function (req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
-
-    let isValid = validator.validateSubmission(req)
-    console.log(isValid?'submission is valid':'submission is invalid')
-
+    if (validator.validateSubmission(req)) {
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
+        validator.validate(req.files.raw);
+        let metadata = JSON.parse(validator.csvJSON(req.files.meta.data.toString()).json);
+        db.saveData(metadata, req.files.raw)
+    } else {
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.'});
+    }
 });
 
 module.exports = router;

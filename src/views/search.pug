@@ -5,8 +5,17 @@ block content
     p This is a search page
     .search
         form(action='/search' method='post')
-            input(type='search' name='query' id='searchBar' placeholder='Search')
-            input(type='search' name='attr1' id='searchAttr1' placeholder='Attribute 1')
-            input(type='search' name='attr2' id='searchAttr2' placeholder='Attribute 2')
+            for term in searchTerms
+                input(type='search' name=term id='searchBar' placeholder=term)
             input(type='submit' value='Search')
-            
+    .searchResults
+        br
+        if results
+            h3 Found #{results.length} results:
+            ul
+                for result, num in results
+                    li= num+1
+                    ul
+                        each val, key in result
+                            if val
+                                li #{key}: #{val}
