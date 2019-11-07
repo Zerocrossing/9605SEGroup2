@@ -78,10 +78,14 @@ module.exports.getQueryResults = function (query) {
 
 function parseQuery(query) {
     //todo logic
-    return query;
+    return {}; //todo right now this always returns en empty query, which returns the whole DB
 }
 
 async function getResultsFromDB(query) {
     //todo logic
-    let results = [];
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(dataCollectionName);
+    let result = await collection.find(query).toArray();
+    return result;
 }

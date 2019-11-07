@@ -1,5 +1,5 @@
 const { fork } = require('child_process');
-const { Worker } = require('worker_threads')
+// const { Worker } = require('worker_threads')
 const fs = require('fs');
 var nodemailer = require('nodemailer');
 
