@@ -17,6 +17,9 @@ function validateSubmission(req) {
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
     let v2 = checkMandatoryFields(retVal.json);
 
+    // Second validation should take place after first has been sent back
+    validate(rawFiles);
+
     return (v1 && v2);
 }
 
