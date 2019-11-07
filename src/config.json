@@ -7,7 +7,20 @@
     "dataCollection": "dataTest",
     "userCollection": "userTest"
   },
-  "dataFilePath" : "./data",
-  "searchTerms": ["institutionCode", "collectionCode", "catalogueNumber", "class", "order", "family", "genus",
-    "specificEpithet", "infraspecificEpithet", "sex", "lifeStage", "country", "Patch"]
+  "dataFilePath": "../data",
+  "searchTerms": [
+    "institutionCode",
+    "collectionCode",
+    "catalogueNumber",
+    "class",
+    "order",
+    "family",
+    "genus",
+    "specificEpithet",
+    "infraspecificEpithet",
+    "sex",
+    "lifeStage",
+    "country",
+    "Patch"
+  ]
 }

@@ -34,12 +34,7 @@ module.exports.saveData = function (metaObject, fileObject) {
 // saves the metadata to the database
 function saveMetaToDatabase(metaObject) {
     let documents;
-    // currently objects come in as json strings
-    if (typeof metaObject.json === 'string' || metaObject.json instanceof String) {
-        documents = JSON.parse(metaObject.json);
-    } else {
-        documents = metaObject.json;
-    }
+    documents = metaObject;
     //todo saving the same file multiple times results in multiple copies entering the DB
     client.connect(err => {
         assert.equal(err, null);

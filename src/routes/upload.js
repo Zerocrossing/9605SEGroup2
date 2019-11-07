@@ -15,13 +15,13 @@ router.post('/', function (req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
-
     if (validator.validateSubmission(req)) {
-        res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!' });
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
         validator.validate(req.files.raw);
-    }
-    else {
-        res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.' });
+        let metadata = JSON.parse(validator.csvJSON(req.files.meta.data.toString()).json);
+        db.saveData(metadata, req.files.raw)
+    } else {
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.'});
     }
 });
 
