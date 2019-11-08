@@ -1,6 +1,7 @@
 const { fork } = require('child_process');
 //const { Worker } = require('worker_threads')
 const fs = require('fs');
+const jszip = require('jszip');
 var nodemailer = require('nodemailer');
 
 function validateSubmission(req) {
@@ -10,8 +11,22 @@ function validateSubmission(req) {
     let rawFileNames = [];
     let retVal = csvJSON(metaFile.data.toString());
 
+    if (typeof rawFiles.length === 'undefined') {
+        rawFiles = [rawFiles];
+    }
+
     for (let i = 0; i < rawFiles.length; i++) {
-        rawFileNames.push(rawFiles[i].name);
+        let name = rawFiles[i].name;
+        if (name.substr(name.length - 3) === 'zip') {
+            jszip.loadAsync(rawFiles[i].data).then(function (zip) {
+                for (let fileZ of Object.keys(zip.files)) {
+                    rawFileNames.push(zip.files[fileZ].name);
+                }
+            });
+        }
+        else {
+            rawFileNames.push(name);
+        }
     }
 
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
