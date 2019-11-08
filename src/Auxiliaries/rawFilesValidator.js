@@ -33,7 +33,7 @@ function validateSingleFile(fileName,content){
     let hasLargeNegative = false;
 
     let lines=content.split("\r\n");
-    console.log("inside check")
+    // console.log("inside check")
 
     let startIndexOfSpectral = 0
 
@@ -53,16 +53,16 @@ function validateSingleFile(fileName,content){
         let line = i+1;
         if(x<-2 || y <-2)
         {
-            console.log("value < -2")
+            // console.log("value < -2")
 
-            console.log(fileName+' Line:'+ line + ' value: '+x +'-'+y)
+            // console.log(fileName+' Line:'+ line + ' value: '+x +'-'+y)
             hasLargeNegative=true;
         }
 
         if((-2<x && x<0) || (-2<y && y<0))
         {
-            console.log("value between 0 and -2")
-            console.log(fileName+' Line: '+ line + ' value: '+x+'-'+y)
+            // console.log("value between 0 and -2")
+            // console.log(fileName+' Line: '+ line + ' value: '+x+'-'+y)
             hasSmallNegative=true;
         }
     }

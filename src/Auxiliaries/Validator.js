@@ -94,7 +94,7 @@ function checkMandatoryFields(json){
             if(item[item1] === '')
             {
                 isValid = false;
-                console.log('fields:\n Row: ',index+1,'| Attribute: ',item1+ ' value : '+item[item1]+'file'+ item['FileName']);
+                // console.log('fields:\n Row: ',index+1,'| Attribute: ',item1+ ' value : '+item[item1]+'file'+ item['FileName']);
             }
 
         }
@@ -116,9 +116,9 @@ function validate(rawFiles){
     process.on('message', (message) => {
 
        // console.log(`Number of files processed ${message.counter}`);
-        console.log("Files With Small Negative Value"+message.returnValue.filesWithSmallNegative)
-        console.log("Files With Large Negative Value"+message.returnValue.filesWithLargeNegative)
-        console.log("Number of files processed : "+message.returnValue.count)
+       //  console.log("Files With Small Negative Value"+message.returnValue.filesWithSmallNegative)
+       //  console.log("Files With Large Negative Value"+message.returnValue.filesWithLargeNegative)
+       //  console.log("Number of files processed : "+message.returnValue.count)
 
 
         let filesWithSmallNegative_Formatted = message.returnValue.filesWithSmallNegative.join('\n');
@@ -126,11 +126,11 @@ function validate(rawFiles){
 
         fs.appendFile('Report_FilesWithSmallNegative.csv', filesWithSmallNegative_Formatted, function (err) {
             if (err) throw err;
-            console.log('Saved!');
+            // console.log('Saved!');
         });
         fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
             if (err) throw err;
-            console.log('Saved!');
+            // console.log('Saved!');
         });
 
         var transporter = nodemailer.createTransport({

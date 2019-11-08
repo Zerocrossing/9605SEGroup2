@@ -6,46 +6,30 @@ const dbName = config.db.dbName;
 const dataCollectionName = config.db.dataCollection;
 const userCollectionName = config.db.userCollection;
 const client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
+client.connect(function (err, db) {
+    if (!err) {
+        console.log("Connected to database");
+    } else {
+        console.log("ERROR CONNECTING TO DATABASE: ", err);
+    }
+});
 
-//demo functionality, delete eventually
-var testConnection = function () {
-    client.connect(err => {
-        console.log("Database connected");
-        const dataCollection = client.db(dbName).collection(dataCollectionName);
-        dataCollection.find({}).toArray(function (err, docs) {
-            assert.equal(err, null);
-            console.log("Found the following records");
-            console.log(docs);
-        });
-        // perform actions on the collection object
-        client.close();
-    });
-};
-if (config.debug) {
-    testConnection();
-}
 
 module.exports.saveData = function (metaObject, fileObject) {
     saveMetaToDatabase(metaObject);
     saveFileToLocal(fileObject);
-
 };
 
 // saves the metadata to the database
 function saveMetaToDatabase(metaObject) {
     let documents;
     documents = metaObject;
-    //todo saving the same file multiple times results in multiple copies entering the DB
-    client.connect(err => {
-        assert.equal(err, null);
-        const dataCollection = client.db(dbName).collection(dataCollectionName);
-        dataCollection.insertMany(documents, function (err, res) {
-            if (err) throw err;
-            if (config.debug) {
-                console.log("Items added to DB");
-            }
-            client.close();
-        });
+    let dataCollection = client.db(dbName).collection(dataCollectionName);
+    dataCollection.insertMany(documents, function (err, res) {
+        if (err) throw err;
+        if (config.debug) {
+            console.log("Items added to DB");
+        }
     });
 }
 
