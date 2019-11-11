@@ -38,11 +38,12 @@ function getZippedFileNames(zippedRawFiles){
     let rawfilenames=[];
     var zip = new admzip(zippedRawFiles.data);
     var zipEntries = zip.getEntries();
-    console.log(zipEntries.toString())
+
     zipEntries.forEach(function(zipEntry) {
         if (zipEntry.name.substr(zipEntry.name.length - 19) === 'Master.Transmission')
             rawfilenames.push(zipEntry.name);
     });
+
 
    return {
             rawFileNames:rawfilenames

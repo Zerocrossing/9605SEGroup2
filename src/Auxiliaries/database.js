@@ -28,7 +28,7 @@ function saveRawFilesSpecs(fileObjects){
     if (typeof fileObjects.length === 'undefined') {
         fileObjects = [fileObjects];
     }
-    console.log(fileObjects)
+
     let rawFileRecords = []
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
@@ -60,7 +60,7 @@ function saveRawFilesSpecs(fileObjects){
         }
 
     });
-    console.log(rawFileRecords);
+
     saveObjectToDb(rawFileRecords, rawFilesCollection);
 }
 
