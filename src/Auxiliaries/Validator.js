@@ -1,5 +1,5 @@
 const { fork } = require('child_process');
-//const { Worker } = require('worker_threads')
+const common = require('../Auxiliaries/common.js')
 const fs = require('fs');
 const jszip = require('jszip');
 var nodemailer = require('nodemailer');
@@ -9,7 +9,7 @@ function validateSubmission(req) {
     let metaFile = req.files.meta;
 
     let rawFileNames = [];
-    let retVal = csvJSON(metaFile.data.toString());
+    let retVal = common.csvJSON(metaFile.data.toString());
 
     if (typeof rawFiles.length === 'undefined') {
         rawFiles = [rawFiles];
@@ -18,12 +18,8 @@ function validateSubmission(req) {
     for (let i = 0; i < rawFiles.length; i++) {
         let name = rawFiles[i].name;
         if (name.substr(name.length - 3) === 'zip') {
-            jszip.loadAsync(rawFiles[i].data).then(function (zip) {
-                for (let fileZ of Object.keys(zip.files)) {
-                    rawFileNames.push(zip.files[fileZ].name);
-                }
-            });
-        }
+            rawFileNames.concat(common.getZippedFileNames(rawFiles[i]))
+           }
         else {
             rawFileNames.push(name);
         }
@@ -33,39 +29,6 @@ function validateSubmission(req) {
     let v2 = checkMandatoryFields(retVal.json);
 
     return (v1 && v2);
-}
-
-function csvJSON(csv) {
-
-    var lines = csv.split("\r\n");
-
-    var result = [];
-    var fileNamesArr = [];
-
-    var headers = lines[0].split(",");
-
-    for (var i = 1; i < lines.length; i++) {
-
-        var obj = {};
-        var currentline = lines[i].split(",");
-
-        for (var j = 0; j < headers.length; j++) {
-            obj[headers[j]] = currentline[j];
-            if (j == 0 && currentline[0] != '') {
-                fileNamesArr.push(currentline[0])
-            }
-        }
-        if (typeof (obj['institutionCode']) !== 'undefined')
-            result.push(obj);
-    }
-
-    //return result; //JavaScript object
-    return {
-        json: JSON.stringify(result),
-        fileNames: fileNamesArr,
-        //emptyMandatoryFields:
-    };
-    //return JSON.stringify(result); //JSON
 }
 
 function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
@@ -197,6 +160,6 @@ function validate(rawFiles){
 
 
 
-exports.csvJSON = csvJSON;
+//exports.csvJSON = csvJSON;
 exports.validateSubmission = validateSubmission;
 exports.validate = validate;

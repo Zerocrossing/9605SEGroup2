@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 var validator = require('../Auxiliaries/Validator')
 const db = require('../Auxiliaries/database')
+const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
@@ -17,8 +18,8 @@ router.post('/', function (req, res) {
     }
     if (validator.validateSubmission(req)) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-        validator.validate(req.files.raw);
-        let metadata = JSON.parse(validator.csvJSON(req.files.meta.data.toString()).json);
+       // validator.validate(req.files.raw);
+        let metadata = JSON.parse(common.csvJSON(req.files.meta.data.toString()).json);
         db.saveData(metadata, req.files.raw)
     } else {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.'});
