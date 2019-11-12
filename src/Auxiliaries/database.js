@@ -6,7 +6,6 @@ const url = config.db.url;
 const dbName = config.db.dbName;
 const dataCollectionName = config.db.dataCollection;
 const userCollectionName = config.db.userCollection;
-const rawFilesCollection = config.db.rawFilesCollection;
 const LocalPathsOfRawFiles = config.db.LocalPathsOfRawFiles;
 const client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
 const common = require('../Auxiliaries/common.js')
@@ -24,9 +23,6 @@ module.exports.saveData = function (metaObject, fileObject) {
     saveObjectToDb(metaObject, dataCollectionName);
     saveFileToLocal(fileObject);
     savePathToDb();
-    if (config.debug)
-        console.log("save data ended!")
-
 };
 function savePathToDb(){
     let rec = {}
