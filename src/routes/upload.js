@@ -20,7 +20,7 @@ router.post('/', function (req, res) {
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-       // validator.validate(req.files.raw);
+
         let metadata = JSON.parse(common.csvJSON(req.files.meta.data.toString()).json);
         db.saveData(metadata, req.files.raw)
     } else {

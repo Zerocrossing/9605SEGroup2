@@ -1,6 +1,8 @@
 const db = require('../Auxiliaries/database');
 const enums = require('../Auxiliaries/enums.js');
 const config = require('../config.json');
+const fs = require('fs');
+var nodemailer = require('nodemailer');
 
 async function processRawFiles(){
    // let query = "{"+"\"processingStatus\""+ ":"+ enums.processingStatus.unprocessed+"}"
@@ -13,8 +15,80 @@ async function processRawFiles(){
 
     localPathsArr.forEach(function (localPath) {
        // console.log(localPath)
-        validateRawFiles(localPath)
+        let retVal = validateRawFiles(localPath)
+        sendEmail(retVal.filesWithSmallNegative, retVal.filesWithLargeNegative)
+
     })
+
+}
+
+function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
+
+    let filesWithSmallNegative_Formatted = filesWithSmallNegative.join('\n');
+    let filesWithLargeNegative_Formatted = filesWithLargeNegative.join('\n');
+
+    fs.appendFile('Report_FilesWithSmallNegative.csv', filesWithSmallNegative_Formatted, function (err) {
+        if (err) throw err;
+    });
+    fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
+        if (err) throw err;
+        });
+
+    var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'g2software2019@gmail.com',
+            pass: 'Gg@123456'
+        }
+    });
+
+    var mailOptions = {
+        from: 'g2sogtware2019@gmail.com',
+        to: 'pasargad63@yahoo.com',
+        subject: 'File Validation Report',
+        text: 'Please see the attached files concerning your last submission on nature palette!',
+        attachments: [
+            {
+                filename: 'Report_FilesWithSmallNegative.csv',
+                path: './Report_FilesWithSmallNegative.csv'
+            },
+            {
+                filename: 'Report_FilesWithLargeNegative.csv',
+                path: './Report_FilesWithLargeNegative.csv'
+            }
+        ]
+
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+            fs.access('./Report_FilesWithLargeNegative.csv',error=>{
+                if(!error){
+                    fs.unlink('./Report_FilesWithLargeNegative.csv',function (error) {
+                        console.log(error)
+
+                    });
+                }else{
+                    console.log(error);
+                }
+            });
+
+            fs.access('./Report_FilesWithSmallNegative.csv',error=>{
+                if(!error){
+                    fs.unlink('./Report_FilesWithSmallNegative.csv',function (error) {
+                        console.log(error)
+
+                    });
+                }else{
+                    console.log(error);
+                }
+            });
+        }
+    });
+
 
 }
 
@@ -71,6 +145,11 @@ function validateRawFiles(pathRec){
     let updt = {$set:{"processingStatus":enums.processingStatus.processed}}
 
     db.updateLocalPathInDb(fltr, updt)
+
+    return {
+        filesWithSmallNegative:filesWithSmallNegative,
+        filesWithLargeNegative:filesWithLargeNegative
+    }
 
 }
 function validateSingleFile(fileName,content){
