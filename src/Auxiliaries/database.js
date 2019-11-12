@@ -7,8 +7,10 @@ const dbName = config.db.dbName;
 const dataCollectionName = config.db.dataCollection;
 const userCollectionName = config.db.userCollection;
 const rawFilesCollection = config.db.rawFilesCollection;
+const LocalPathsOfRawFiles = config.db.LocalPathsOfRawFiles;
 const client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
-const common = require('../Auxiliaries/common.js');
+const common = require('../Auxiliaries/common.js')
+var fs = require('fs');
 client.connect(function (err, db) {
     if (!err) {
         console.log("Connected to database");
@@ -21,61 +23,22 @@ client.connect(function (err, db) {
 module.exports.saveData = function (metaObject, fileObject) {
     saveObjectToDb(metaObject, dataCollectionName);
     saveFileToLocal(fileObject);
-    saveRawFilesSpecs(fileObject);
+    savePathToDb();
+    if (config.debug)
+        console.log("save data ended!")
+
 };
-//save raw files specs to the database
-function saveRawFilesSpecs(fileObjects){
-    if (typeof fileObjects.length === 'undefined') {
-        fileObjects = [fileObjects];
-    }
+function savePathToDb(){
+    let rec = {}
+    let recs=[]
 
-    let rawFileRecords = []
-    fileObjects.forEach(function (fileObj) {
-        let splitExt = fileObj.name.split(".");
-        let ext = splitExt[splitExt.length - 1];
-        if (ext === 'csv') {
-            return;
-        }
+    rec["path"] = config.dataFilePath +"/"+ config.tempUser.userName
+    rec["processingStatus"]=enums.processingStatus.unprocessed;
+    recs.push(rec)
+    saveObjectToDb(recs, LocalPathsOfRawFiles);
 
-        if (ext === 'zip'){
-            let res = common.getZippedFileNames(fileObj)
-           // console.log(res.rawFileNames)
-            res.rawFileNames.forEach(function (fileName){
-                let rawFileRec={};
-                rawFileRec["RawFileName"]=fileName;//(splitExt.slice(0,splitExt.length - 2)).join(".")
-                rawFileRec["processingStatus"]=enums.processingStatus.unprocessed;
-                rawFileRec["validationStatus"]=enums.validationStatus.unknown;
-
-                rawFileRecords.push(rawFileRec);
-
-            });
-        }
-        else {
-            let rawFileRecord = {};
-            rawFileRecord["RawFileName"] = fileObj.name;//(splitExt.slice(0,splitExt.length - 2)).join(".")
-            rawFileRecord["processingStatus"] = enums.processingStatus.unprocessed;
-            rawFileRecord["validationStatus"] = enums.validationStatus.unknown;
-
-            rawFileRecords.push(rawFileRecord);
-        }
-
-    });
-
-    saveObjectToDb(rawFileRecords, rawFilesCollection);
 }
 
-// save collection
-function saveObjectToDb(objectTobeSaved, collectionName) {
-    let documents;
-    documents = objectTobeSaved;
-    let dataCollection = client.db(dbName).collection(collectionName);
-    dataCollection.insertMany(documents, function (err, res) {
-        if (err) throw err;
-        if (config.debug) {
-            console.log("Items added to db collection :"+ collectionName);
-        }
-    });
-}
 // saves the metadata to the database
 /*function saveMetaToDatabase(metaObject) {
     let documents;
@@ -94,6 +57,17 @@ function saveFileToLocal(fileObjects) {
     if (typeof fileObjects.length === 'undefined') {
         fileObjects = [fileObjects];
     }
+
+    /*try {
+        fs..accessSync(myDir);
+    } catch (e) {
+        fs.mkdirSync(myDir);
+    }*/
+
+    let pathToSave = config.dataFilePath + "/" + config.tempUser.userName;
+    if (!fs.existsSync(pathToSave)){
+        fs.mkdirSync(pathToSave);
+    }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
         let ext = splitExt[splitExt.length - 1];
@@ -102,10 +76,10 @@ function saveFileToLocal(fileObjects) {
         }
 
         if (ext === 'zip') {
-            common.extractZippedFile(fileObj,config.dataFilePath);
+            common.extractZippedFile(fileObj,pathToSave);
         }
         else
-            fileObj.mv(config.dataFilePath + "/" + fileObj.name);
+            fileObj.mv(pathToSave + "/" + fileObj.name);
     });
     if (config.debug) {
         console.log("Items stored on disk");
@@ -115,7 +89,7 @@ function saveFileToLocal(fileObjects) {
 // takes in the raw post request and returns an array of data objects from the database
 module.exports.getQueryResults = function (query) {
     query = parseQuery(query);
-    results = getResultsFromDB(query);
+    results = getResultsFromDB(query, dataCollectionName);
     return results;
 };
 
@@ -124,11 +98,70 @@ function parseQuery(query) {
     return {}; //todo right now this always returns en empty query, which returns the whole DB
 }
 
-async function getResultsFromDB(query) {
-    //todo logic
-    const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
-    let collection = db.collection(dataCollectionName);
-    let result = await collection.find(query).toArray();
+
+
+module.exports.getLocalPathFromDb = function (query) {
+
+    let result = getResultsFromDB(query, LocalPathsOfRawFiles);
     return result;
 }
+
+module.exports.updateLocalPathInDb = function (filter, update) {
+
+    let result = updateDB(filter, update, LocalPathsOfRawFiles);
+    return result;
+}
+
+
+async function getResultsFromDB(query, collectionName) {
+    //todo logic
+    try{
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        let collection = db.collection(collectionName);
+        let result = await collection.find(query).toArray();
+        return result;
+    }
+    catch (e) {
+        console.log(e.message)
+    }
+
+}
+
+async function updateDB(filter, update, collectionName) {
+    //todo logic
+    try{
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        let collection = db.collection(collectionName);
+        let res = await collection.updateMany(filter,update);
+        if(config.debug)
+            console.log(res.result.nModified + "Ok: "+res.result.ok )
+    }
+    catch (e) {
+        console.log(e.message)
+    }
+
+
+}
+
+// save collection
+async function saveObjectToDb(objectTobeSaved, collectionName) {
+
+    try{
+        let documents;
+        documents = objectTobeSaved;
+        let dataCollection = client.db(dbName).collection(collectionName);
+        await dataCollection.insertMany(documents, function (err, res) {
+            if (err) throw err;
+            if (config.debug) {
+                console.log("Items added to db collection :"+ collectionName);
+            }
+        });
+    }
+    catch (e) {
+        console.log(e.message)
+    }
+
+}
+

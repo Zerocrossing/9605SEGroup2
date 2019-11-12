@@ -1,7 +1,6 @@
 const { fork } = require('child_process');
 const common = require('../Auxiliaries/common.js')
 const fs = require('fs');
-const jszip = require('jszip');
 var nodemailer = require('nodemailer');
 
 function validateSubmission(req) {

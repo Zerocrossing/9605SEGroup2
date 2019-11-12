@@ -1,40 +1,84 @@
-/*async function validate(rawFiles){
-    setTimeout(validate1, 10000,rawFiles)
-    return 11;
+const db = require('../Auxiliaries/database');
+const enums = require('../Auxiliaries/enums.js');
+const config = require('../config.json');
 
-}*/
-async function validate(rawFiles) {
-    let rawFilesArray= Object.values(rawFiles)
-    let retVal;
+async function processRawFiles(){
+   // let query = "{"+"\"processingStatus\""+ ":"+ enums.processingStatus.unprocessed+"}"
+    let query = {"processingStatus": enums.processingStatus.unprocessed}
+    //console.log(query)
+    let localPaths = await db.getLocalPathFromDb(query)
+    let localPathsArr = Object.values(localPaths)
+
+    console.log("localPathsArr.length: " + localPathsArr.length)
+
+    localPathsArr.forEach(function (localPath) {
+       // console.log(localPath)
+        validateRawFiles(localPath)
+    })
+
+}
+
+function validateRawFiles(pathRec){
+
+    let filter = {$and:[{"path":pathRec.path}, {"processingStatus": enums.processingStatus.unprocessed}] }
+    let update = {$set:{"processingStatus":enums.processingStatus.inProgress}}
+
+    db.updateLocalPathInDb(filter, update)
+
     let filesWithSmallNegative=[]
     let filesWithLargeNegative=[]
-    for (let i = 0; i < rawFilesArray.length; i++){
-        retVal = validateSingleFile(rawFilesArray[i].name,rawFilesArray[i].strContent);
-        if(retVal.hasSmallNegative)
-            filesWithSmallNegative.push(rawFilesArray[i].name)
-        if(retVal.hasLargeNegative)
-            filesWithLargeNegative.push(rawFilesArray[i].name)
 
-    }
-   /* console.log("filesWithSmallNegative:",filesWithSmallNegative)
-    console.log("filesWithSmallNegative count:",filesWithSmallNegative.length)
-    console.log("filesWithLargeNegative:",filesWithLargeNegative)
-    console.log("filesWithLargeNegative count:",filesWithLargeNegative.length)
-   */ //return rawFilesArray.length
-    return{
-        filesWithSmallNegative:filesWithSmallNegative,
-        filesWithLargeNegative:filesWithLargeNegative,
-        count:rawFilesArray.length
-    }
+
+    let path = require('path');
+    let fs = require('fs');
+
+    let directoryPath = pathRec.path
+   // console.log(directoryPath)
+    let getDirectories = fs.readdirSync(directoryPath)
+        .map(file => path.join(directoryPath, file))
+        .filter(path => fs.statSync(path).isDirectory());
+
+
+    let srchDir = []
+    let count = 0
+    srchDir.push(directoryPath);
+    srchDir = srchDir.concat(getDirectories)
+   // console.log(srchDir);
+    srchDir.forEach(function (dir) {
+        fs.readdirSync(dir).forEach(function (file) {
+
+            var fs = require('fs');
+
+            if (file.substr(file.length - config.rawFileExtensionLength) === config.rawFileExtension) {
+                count++
+                var buffer = fs.readFileSync(dir + "\\" + file);
+
+                let retVal = validateSingleFile(file, buffer.toString())
+              //  console.log(retVal)
+                if (retVal.hasSmallNegative)
+                    filesWithSmallNegative.push(file)
+                if (retVal.hasLargeNegative)
+                    filesWithLargeNegative.push(file)
+            }
+        });
+    });
+
+    //console.log("filesWithSmallNegative" + filesWithSmallNegative);
+    //console.log("filesWithLargeNegative" + filesWithLargeNegative);
+    //console.log("count"+ count)
+
+    let fltr = {$and:[{"path":pathRec.path},{"processingStatus": enums.processingStatus.inProgress}]}
+    let updt = {$set:{"processingStatus":enums.processingStatus.processed}}
+
+    db.updateLocalPathInDb(fltr, updt)
 
 }
 function validateSingleFile(fileName,content){
+
     let hasSmallNegative = false;
     let hasLargeNegative = false;
 
     let lines=content.split("\r\n");
-    // console.log("inside check")
-
     let startIndexOfSpectral = 0
 
     while(!lines[startIndexOfSpectral].includes('>>>>>Begin'))
@@ -54,7 +98,6 @@ function validateSingleFile(fileName,content){
         if(x<-2 || y <-2)
         {
             // console.log("value < -2")
-
             // console.log(fileName+' Line:'+ line + ' value: '+x +'-'+y)
             hasLargeNegative=true;
         }
@@ -71,16 +114,5 @@ function validateSingleFile(fileName,content){
         hasLargeNegative:hasLargeNegative,
         hasSmallNegative:hasSmallNegative
     }
-
-    //
 }
-
-
-// receive message from master process
-process.on('message', async (message) => {
-    const retVal = await validate(message.rawFiles);
-
-    // send response to master process
-    //console.log("before send")
-    process.send({ returnValue: retVal });
-});
+exports.processRawFiles = processRawFiles;

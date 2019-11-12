@@ -9,6 +9,8 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+var rawFilevalidator = require('./Auxiliaries/rawFilesValidator')
+
 
 // import routes
 const index = require('./routes/index');
@@ -41,8 +43,16 @@ app.use('/upload', upload);
 app.use('/search', search);
 app.use('/download', download);
 
+
 // start server
 app.set('port', process.env.PORT || config.port);
 const server = app.listen(app.get('port'), function () {
     debug('Express server listening on port ' + server.address().port);
+
+
+    console.log("Scheduler is going to start with interval:" + config.schedulerInterval);
+    let scheduler = setInterval(function () {
+        console.log("scheduler is running !");
+        rawFilevalidator.processRawFiles();
+    }, config.schedulerInterval);
 });

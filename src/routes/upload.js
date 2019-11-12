@@ -5,6 +5,7 @@ var validator = require('../Auxiliaries/Validator')
 const db = require('../Auxiliaries/database')
 const common = require('../Auxiliaries/common.js');
 
+
 // Upload page render
 router.get('/', function (req, res) {
     res.render('upload', {title: 'Nature\'s Palette'});
@@ -22,6 +23,8 @@ router.post('/', function (req, res) {
        // validator.validate(req.files.raw);
         let metadata = JSON.parse(common.csvJSON(req.files.meta.data.toString()).json);
         db.saveData(metadata, req.files.raw)
+        //console.log("before raw")
+        //rawFilevalidator.processRawFiles();
     } else {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.' +
         '\n'+ validationStatus.message});

@@ -1,5 +1,7 @@
 const jszip = require('jszip');
 const admzip = require('adm-zip')
+const config = require('../config.json');
+var fs = require('fs')
 
 function csvJSON(csv) {
 
@@ -29,9 +31,8 @@ function csvJSON(csv) {
     return {
         json: JSON.stringify(result),
         fileNames: fileNamesArr,
-        //emptyMandatoryFields:
     };
-    //return JSON.stringify(result); //JSON
+
 }
 function getZippedFileNames(zippedRawFiles){
 
@@ -40,7 +41,7 @@ function getZippedFileNames(zippedRawFiles){
     var zipEntries = zip.getEntries();
 
     zipEntries.forEach(function(zipEntry) {
-        if (zipEntry.name.substr(zipEntry.name.length - 19) === 'Master.Transmission')
+        if (zipEntry.name.substr(zipEntry.name.length - config.rawFileExtensionLength) === config.rawFileExtension)
             rawfilenames.push(zipEntry.name);
     });
 
@@ -51,7 +52,7 @@ function getZippedFileNames(zippedRawFiles){
 }
 function extractZippedFile(zippedRawFiles, path){
     var zip = new admzip(zippedRawFiles.data);
-     zip.extractAllTo(path,true)
+    zip.extractAllTo(path,true)
 }
 
 exports.csvJSON = csvJSON;

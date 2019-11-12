@@ -1,12 +1,13 @@
 {
   "port": 3332,
-  "debug": false,
+  "debug": true,
   "db": {
     "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
     "dbName": "project",
     "dataCollection": "dataTest",
     "userCollection": "userTest",
-    "rawFilesCollection":"rawFilesSpecs"
+    "rawFilesCollection":"rawFilesSpecs",
+    "LocalPathsOfRawFiles":"LocalPathsOfRawFiles"
   },
   "dataFilePath": "../data",
   "searchTerms": [
@@ -23,5 +24,14 @@
     "lifeStage",
     "country",
     "Patch"
-  ]
+  ],
+  "tempUser": {
+    "userName": "Group2",
+    "pass": "",
+    "email": ""
+  },
+  "schedulerInterval": 120000,
+  "rawFileExtension":"Master.Transmission",
+  "rawFileExtensionLength":19
+
 }
