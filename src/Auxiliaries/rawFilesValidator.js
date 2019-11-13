@@ -11,7 +11,7 @@ async function processRawFiles(){
     let localPaths = await db.getLocalPathFromDb(query)
     let localPathsArr = Object.values(localPaths)
 
-    console.log("localPathsArr.length: " + localPathsArr.length)
+    //console.log("localPathsArr.length: " + localPathsArr.length)
 
     localPathsArr.forEach(function (localPath) {
        // console.log(localPath)

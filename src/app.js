@@ -52,7 +52,7 @@ const server = app.listen(app.get('port'), function () {
 
     console.log("Scheduler is going to start with interval:" + config.schedulerInterval);
     let scheduler = setInterval(function () {
-        console.log("scheduler is running !");
+        //console.log("scheduler is running !");
         rawFilevalidator.processRawFiles();
     }, config.schedulerInterval);
 });

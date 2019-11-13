@@ -6,6 +6,7 @@ var nodemailer = require('nodemailer');
 function validateSubmission(req) {
     let rawFiles = req.files.raw;
     let metaFile = req.files.meta;
+    let basicInfo = req.body;
 
     let rawFileNames = [];
     let retVal = common.csvJSON(metaFile.data.toString());
@@ -25,22 +26,25 @@ function validateSubmission(req) {
         }
     }
 
-
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
-    let v2 = checkMandatoryFields(retVal.json);
+    let v2 = checkMandatoryFields(retVal.json, basicInfo);
 
     return{
         isValid: (v1.isValid & v2.isValid),
-        message: v1.message+'\n'+v2.message
+        json: JSON.parse(retVal.json),
+        message: v1.message + '\n' + v2.message
     } ;
 }
 
 function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
     rawFileNames.sort();
     metadataRawFileNames.sort();
+    /*for (let i = 0; i < rawFileNames.length; i++) {
+        console.log(rawFileNames[i] + " =? " + metadataRawFileNames[i]);
+    }*/
 
-   for(let i=0; i<rawFileNames.length ;i++){
-        rawFileNames[i]= rawFileNames[i].substr(0,rawFileNames[i].length - 20)
+   for(let i=0; i<rawFileNames.length ; i++){
+        rawFileNames[i] = rawFileNames[i].substr(0,rawFileNames[i].length - 20)
     }
 
     let rawFileNamesStr = rawFileNames.toString();
@@ -58,27 +62,28 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
     }
 }
 
-function checkMandatoryFields(json){
+function checkMandatoryFields(json, basicInfo){
     //should be in config
     let isValid=true;
-    let mandatoryFields = ['FileName','catalogueNumber','genus','Patch','LightAngle1','LightAngle2','ProbeAngle1','ProbeAngle2','Replicate']
     let jsonObj = JSON.parse(json);
-    let emptyMandatoryFields= [];
+    let emptyMandatoryFields = [];
+    let mandatoryFields = ['filename', 'genus', 'specificepithet', 'patch', 'lightangle1', 'lightangle2', 'probeangle1', 'probeangle2', 'replicate']
+    if (basicInfo.dataFrom === 'museum') {
+        mandatoryFields.concat(['institutioncode', 'cataloguenumber']);
+    }
+    else if (basicInfo.dataFrom === 'field') {
+        mandatoryFields.concat(['uniqueid']);
+    }
 
-    jsonObj.forEach(myFunction);
-    function myFunction(item, index) {
-        mandatoryFields.forEach(myFunction2);
-
-        function myFunction2(item1, index1) {
-            if(item[item1] === '')
-            {
+    jsonObj.forEach(function(item, index) {
+        mandatoryFields.forEach(function(item1, index1) {
+            if (item[item1] === '') {
                 isValid = false;
-                emptyMandatoryFields.push('field:\n Row: ',index+1,'| Attribute: ',item1+ ' value : '+item[item1]+'file'+ item['FileName'])
+                emptyMandatoryFields.push('field:\n Row: ', index + 1, '| Attribute: ', item1 + ' value : ' + item[item1] + 'file' + item['FileName'])
                 // console.log('fields:\n Row: ',index+1,'| Attribute: ',item1+ ' value : '+item[item1]+'file'+ item['FileName']);
             }
-
-        }
-    }
+        });
+    });
 
     return {
         isValid : isValid,
@@ -86,10 +91,4 @@ function checkMandatoryFields(json){
     }
 }
 
-//run().catch(err => console.error(err))*/
-
-
-
-//exports.csvJSON = csvJSON;
 exports.validateSubmission = validateSubmission;
-exports.validate = validate;
