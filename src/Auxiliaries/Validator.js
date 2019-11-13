@@ -92,4 +92,4 @@ function checkMandatoryFields(json){
 
 //exports.csvJSON = csvJSON;
 exports.validateSubmission = validateSubmission;
-exports.validate = validate;
+// exports.validate = validate;
