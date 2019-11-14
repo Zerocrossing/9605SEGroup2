@@ -4,14 +4,19 @@ block content
     h1= title
     p This is a search page
     .search
-        form(action='/search' method='post')
+        form(action='/search' method='post' id="searchForm")
             for term in searchTerms
                 input(type='search' name=term id='searchBar' placeholder=term)
+            select(name="resultsPerPage", form="searchForm") Entries per page
+                option(value=20) 20
+                option(value=30) 30
+                option(value=40) 40
             input(type='submit' value='Search')
+
     .searchResults
         br
-        if results != undefined
-            h3 Found #{results.length} results:
+        if results !== undefined
+            h3 Displaying  #{results.length} results out of #{count}:
             ul
                 for result, num in results
                     li= num+1

@@ -24,12 +24,13 @@ module.exports.saveData = function (metaObject, fileObject) {
     saveFileToLocal(fileObject);
     savePathToDb();
 };
-function savePathToDb(){
-    let rec = {}
-    let recs=[]
 
-    rec["path"] = config.dataFilePath +"/"+ config.tempUser.userName
-    rec["processingStatus"]=enums.processingStatus.unprocessed;
+function savePathToDb() {
+    let rec = {}
+    let recs = []
+
+    rec["path"] = config.dataFilePath + "/" + config.tempUser.userName
+    rec["processingStatus"] = enums.processingStatus.unprocessed;
     recs.push(rec)
     saveObjectToDb(recs, LocalPathsOfRawFiles);
 
@@ -61,7 +62,7 @@ function saveFileToLocal(fileObjects) {
     }*/
 
     let pathToSave = config.dataFilePath + "/" + config.tempUser.userName;
-    if (!fs.existsSync(pathToSave)){
+    if (!fs.existsSync(pathToSave)) {
         fs.mkdirSync(pathToSave);
     }
     fileObjects.forEach(function (fileObj) {
@@ -72,9 +73,8 @@ function saveFileToLocal(fileObjects) {
         }
 
         if (ext === 'zip') {
-            common.extractZippedFile(fileObj,pathToSave);
-        }
-        else
+            common.extractZippedFile(fileObj, pathToSave);
+        } else
             fileObj.mv(pathToSave + "/" + fileObj.name);
     });
     if (config.debug) {
@@ -84,16 +84,38 @@ function saveFileToLocal(fileObjects) {
 
 // takes in the raw post request and returns an array of data objects from the database
 module.exports.getQueryResults = function (query) {
-    query = parseQuery(query);
-    results = getResultsFromDB(query, dataCollectionName);
+    let parsedQuery = parseQuery(query);
+    let options = getOptions(query);
+    results = getResultsFromDB(parsedQuery, dataCollectionName, options);
     return results;
 };
 
+//takes in the raw post request and returns the size of the query (for pagination)
+module.exports.getQuerySize = function (query) {
+    let parsedQuery = parseQuery(query);
+    let count = getQuerySize(parsedQuery, dataCollectionName);
+    return count;
+};
+
+//This function takes in the querystring from the page form and returns a mongo-appropriate query
 function parseQuery(query) {
-    //todo logic
-    return {}; //todo right now this always returns en empty query, which returns the whole DB
+    parsed = {};
+    //Only accept search terms defined in config and non-empty
+    for (var k in query) {
+        val = query[k];
+        if (config.searchTerms.includes(k) && val !== "") {
+            parsed[k] = val;
+        }
+    }
+    return parsed;
 }
 
+//Mongo has an variable for options, which controls elements like max count, ect.
+function getOptions(query) {
+    let options = {};
+    options.limit = parseInt(query.resultsPerPage);
+    return options;
+}
 
 
 module.exports.getLocalPathFromDb = function (query) {
@@ -108,17 +130,30 @@ module.exports.updateLocalPathInDb = function (filter, update) {
     return result;
 }
 
-
-async function getResultsFromDB(query, collectionName) {
+// returns the results of a query, with the optional mongo options param
+async function getResultsFromDB(query, collectionName, options = {}) {
     //todo logic
-    try{
+    try {
         const client = await MongoClient.connect(url);
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
-        let result = await collection.find(query).toArray();
+        let result = await collection.find(query, options).toArray();
         return result;
+    } catch (e) {
+        console.log(e.message)
     }
-    catch (e) {
+
+}
+
+//identical to getResults but only returns the size of the query (for pagination)
+async function getQuerySize(query, collectionName, options = {}) {
+    try {
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        let collection = db.collection(collectionName);
+        let result = await collection.count(query, options);
+        return result;
+    } catch (e) {
         console.log(e.message)
     }
 
@@ -126,15 +161,14 @@ async function getResultsFromDB(query, collectionName) {
 
 async function updateDB(filter, update, collectionName) {
     //todo logic
-    try{
+    try {
         const client = await MongoClient.connect(url);
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
-        let res = await collection.updateMany(filter,update);
-        if(config.debug)
-            console.log(res.result.nModified + "Ok: "+res.result.ok )
-    }
-    catch (e) {
+        let res = await collection.updateMany(filter, update);
+        if (config.debug)
+            console.log(res.result.nModified + "Ok: " + res.result.ok)
+    } catch (e) {
         console.log(e.message)
     }
 
@@ -144,18 +178,17 @@ async function updateDB(filter, update, collectionName) {
 // save collection
 async function saveObjectToDb(objectTobeSaved, collectionName) {
 
-    try{
+    try {
         let documents;
         documents = objectTobeSaved;
         let dataCollection = client.db(dbName).collection(collectionName);
         await dataCollection.insertMany(documents, function (err, res) {
             if (err) throw err;
             if (config.debug) {
-                console.log("Items added to db collection :"+ collectionName);
+                console.log("Items added to db collection :" + collectionName);
             }
         });
-    }
-    catch (e) {
+    } catch (e) {
         console.log(e.message)
     }
 

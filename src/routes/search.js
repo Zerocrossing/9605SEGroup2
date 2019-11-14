@@ -12,12 +12,14 @@ router.get('/', function (req, res) {
 // Post request: responds to search query
 router.post('/', async function (req, res) {
     let query = req.body;
-    let results = await db.getQueryResults(query);
+    let count = db.getQuerySize(query);
+    let results = db.getQueryResults(query);
     res.render('search',
         {
             title: 'Nature\'s Palette',
             searchTerms: config.searchTerms,
-            results: results
+            results: await results,
+            count: await count
         }
     )
 });

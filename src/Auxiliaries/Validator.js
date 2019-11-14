@@ -92,3 +92,4 @@ function checkMandatoryFields(json, basicInfo){
 }
 
 exports.validateSubmission = validateSubmission;
+// exports.validate = validate;
