@@ -16,7 +16,7 @@ block content
     .searchResults
         br
         if results !== undefined
-            h3 Found #{results.length} results:
+            h3 Displaying  #{results.length} results out of #{count}:
             ul
                 for result, num in results
                     li= num+1

@@ -90,20 +90,27 @@ module.exports.getQueryResults = function (query) {
     return results;
 };
 
+//takes in the raw post request and returns the size of the query (for pagination)
+module.exports.getQuerySize = function (query) {
+    let parsedQuery = parseQuery(query);
+    let count = getQuerySize(parsedQuery, dataCollectionName);
+    return count;
+};
+
+//This function takes in the querystring from the page form and returns a mongo-appropriate query
 function parseQuery(query) {
-    //todo logic
-    query = {};
+    parsed = {};
+    //Only accept search terms defined in config and non-empty
     for (var k in query) {
         val = query[k];
-        console.log(val);
-        if (true) {
-            query.k = val;
+        if (config.searchTerms.includes(k) && val !== "") {
+            parsed[k] = val;
         }
     }
-    console.log(query);
-    return query; //todo right now this always returns en empty query, which returns the whole DB
+    return parsed;
 }
 
+//Mongo has an variable for options, which controls elements like max count, ect.
 function getOptions(query) {
     let options = {};
     options.limit = parseInt(query.resultsPerPage);
@@ -123,7 +130,7 @@ module.exports.updateLocalPathInDb = function (filter, update) {
     return result;
 }
 
-
+// returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
     //todo logic
     try {
@@ -131,6 +138,20 @@ async function getResultsFromDB(query, collectionName, options = {}) {
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
         let result = await collection.find(query, options).toArray();
+        return result;
+    } catch (e) {
+        console.log(e.message)
+    }
+
+}
+
+//identical to getResults but only returns the size of the query (for pagination)
+async function getQuerySize(query, collectionName, options = {}) {
+    try {
+        const client = await MongoClient.connect(url);
+        const db = client.db(dbName);
+        let collection = db.collection(collectionName);
+        let result = await collection.count(query, options);
         return result;
     } catch (e) {
         console.log(e.message)
