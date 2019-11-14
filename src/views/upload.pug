@@ -105,7 +105,7 @@ block content
                                 input(id='embargoN' type='radio' name='embargoRadio' value='false' onclick="makeDateInvisible()" form='uploadForm' checked)
                                 | No
                         td
-                            input(id='date' type='date' name='date' value='date' style='display: none;' form='uploadForm')
+                            input(id='date' type='date' name='date' style='display: none;' form='uploadForm')
                 input(type='button' value='Next' onClick="nextSub(3)")
 
         div(class='upload submission3' style='display: none;')
@@ -137,6 +137,15 @@ block content
         
 
     script.
+        $('#uploadInfo #date').ready(function() {
+            let date = new Date();
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1;
+            let day = date.getDate();
+            $('#uploadInfo #date').attr('min', year + '-' + month + '-' + (day + 1));
+            $('#uploadInfo #date').attr('max', (year + 1) + '-' + month + '-' + day);
+        });
+
         function makeDateVisible() {
            $('#uploadInfo #date').show();
            $('#uploadInfo #dateLabel').show();
