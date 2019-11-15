@@ -123,7 +123,8 @@ function validateRawFiles(pathRec){
 
             var fs = require('fs');
 
-            if (file.substr(file.length - config.rawFileExtensionLength) === config.rawFileExtension) {
+        // todo replace rawFileExtensionLength
+            if (file.substr(file.length - config.rawFileExtensionLength) === config.rawFileExtension[0]) {
                 count++
                 var buffer = fs.readFileSync(dir + "\\" + file);
 

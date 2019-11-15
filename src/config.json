@@ -30,7 +30,8 @@
     "email": ""
   },
   "schedulerInterval": 120000,
-  "rawFileExtension":"Master.Transmission",
-  "rawFileExtensionLength":19
-
+  "rawFileExtension": [
+    ".Master.Transmission"
+  ],
+  "rawFileExtensionLength": 19
 }

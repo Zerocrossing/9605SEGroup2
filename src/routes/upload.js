@@ -20,11 +20,9 @@ router.post('/', function (req, res) {
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-
         db.saveData(validationStatus.json, req.files.raw)
     } else {
-        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.' +
-        '\n'+ validationStatus.message});
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
     }
 });
 

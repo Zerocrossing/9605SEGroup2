@@ -1,4 +1,3 @@
-const jszip = require('jszip');
 const admzip = require('adm-zip');
 const config = require('../config.json');
 const fs = require('fs');
@@ -24,23 +23,19 @@ function csvJSON(csv) {
         json: JSON.stringify(result),
         fileNames: fileNamesArr,
     };
-
 }
 
 function getZippedFileNames(zippedRawFiles){
-
     let rawfilenames=[];
     var zip = new admzip(zippedRawFiles.data);
     var zipEntries = zip.getEntries();
 
     zipEntries.forEach(function (zipEntry) {
-        if (zipEntry.name.substr(zipEntry.name.length - config.rawFileExtensionLength) === config.rawFileExtension)
-            rawfilenames.push(zipEntry.name);
+        rawfilenames.push(zipEntry.name);
     });
 
-
-   return {
-            rawFileNames:rawfilenames
+    return {
+        rawFileNames: rawfilenames
     };
 }
 
