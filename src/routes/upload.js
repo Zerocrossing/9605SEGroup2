@@ -8,7 +8,7 @@ const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
-    res.render('upload', {title: 'Nature\'s Palette'});
+    res.render('upload', {title: 'Nature\'s Palette', msg: ''});
 });
 
 // Post request: uploaded files
@@ -20,7 +20,7 @@ router.post('/', function (req, res) {
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-        db.saveData(validationStatus.json, req.files.raw)
+        //db.saveData(validationStatus.json, req.files.raw)
     } else {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
     }
