@@ -16,8 +16,8 @@ var rawFilevalidator = require('./Auxiliaries/rawFilesValidator')
 const index = require('./routes/index');
 const search = require('./routes/search');
 const upload = require('./routes/upload');
-const about = require('./routes/about');
 const download = require('./routes/download');
+const login = require('./routes/login');
 
 // load config
 const config = require('./config.json');
@@ -38,11 +38,10 @@ app.use(fileUpload());
 
 // init views
 app.use('/', index);
-app.use('/about', about);
 app.use('/upload', upload);
 app.use('/search', search);
 app.use('/download', download);
-
+app.use('/login', login);
 
 // start server
 app.set('port', process.env.PORT || config.port);

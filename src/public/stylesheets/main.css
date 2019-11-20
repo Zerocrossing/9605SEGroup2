@@ -1,6 +1,13 @@
 ﻿body {
     padding: 50px;
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color: black;
+    color: white;
+    background-image: url(../img/bg.png);
+    height: 100%;
+    background-size: cover;
+    background-position: 50% 60px;
+    background-repeat: no-repeat;
 }
 
 a {
@@ -34,7 +41,7 @@ button {
 
 button.navButton {
     background-color: #666666;
-    color: black;
+    color: white;
     border: groove;
     border-radius: 8px;
     border-width: 2px;
@@ -84,14 +91,8 @@ button.navButton:hover {
     border-color: #FF0000;
 }
 
-body{
-    background-image: url(../img/my.jpeg);
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-}
-
 .login-page{
+    color: black;
     width: 360px;
     padding: 10% 0 0;
     margin: auto;
