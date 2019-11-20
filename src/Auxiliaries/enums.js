@@ -7,7 +7,7 @@ var processingStatus = {
 var validationStatus = {
     unknown: 0,
     valid: 1,
-    //invalid files will be removed from database
+    invalid :2
 
 };
 

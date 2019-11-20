@@ -6,7 +6,7 @@
     "dbName": "project",
     "dataCollection": "dataTest",
     "userCollection": "userTest",
-    "LocalPathsOfRawFiles":"LocalPathsOfRawFiles"
+    "submission":"submission"
   },
   "dataFilePath": "../data",
   "searchTerms": [
@@ -32,6 +32,6 @@
   "schedulerInterval": 120000,
   "rawFileExtension": [
     ".Master.Transmission"
-  ],
-  "rawFileExtensionLength": 19
+  ]
+
 }
