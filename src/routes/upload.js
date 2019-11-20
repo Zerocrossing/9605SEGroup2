@@ -8,7 +8,7 @@ const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
-    res.render('upload', {title: 'Nature\'s Palette'});
+    res.render('upload', {title: 'Nature\'s Palette', msg: ''});
 });
 
 // Post request: uploaded files

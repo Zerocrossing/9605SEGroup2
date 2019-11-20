@@ -4,3 +4,32 @@ block content
     h1= title
     p Welcome to #{title}
     div.center
+        div.login-page
+            div.form
+                form.register-form
+                    input(type="text" placeholder="user name")
+                    input(type="text" placeholder="pasword")
+                    input(type="text" placeholder="email id")
+
+                    button
+                        | create
+                    p.message
+                        | Already Registered?
+                        a(href="#")
+                            | Login
+
+                form.login-form
+                    input(type="text" placeholder="username")
+                    input(type="text" placeholder="pasword")
+                    button
+                        | login
+                    p.message
+                        | Not Registered?
+                        a(href="#")
+                            | Registeredd
+
+    script.
+        $('.message a').click(function(){
+        $('form').animate({height:"toggle", opacity: "toggle"}, "slow");});
+
+
