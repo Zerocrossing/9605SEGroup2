@@ -2,4 +2,36 @@
 
 block content
     h1= title
-    p This is an about page.
+    ap This is an about page.
+
+    head
+        meta(charset='utf-8')
+        meta(name='viewport' content='width=device-width, initial-scale=1.0, shrink-to-fit=no')
+        title Untitled
+        link(rel='stylesheet' href='bootstrap.min.css')
+        link(rel='stylesheet' href='./embed/fonts/fontawesome5-overrides.min.css')
+        link(rel='stylesheet' href='./embed/fonts/fontawesome5-overrides.min.css')
+        link(rel='stylesheet' href='Registration-Form-with-Photo.css')
+        link(rel='stylesheet' href='styles.css')
+    .register-photo
+        .form-container
+            .image-holder
+            form(method='post')
+                h2.text-center
+                    strong Create
+                    |  an account.
+                .form-group
+                    input.form-control(type='email' name='email' placeholder='Email')
+                .form-group
+                    input.form-control(type='password' name='password' placeholder='Password')
+                .form-group
+                    input.form-control(type='password' name='password-repeat' placeholder='Password (repeat)')
+                .form-group
+                    .form-check
+                        label.form-check-label
+                            input.form-check-input(type='checkbox')
+                            | I agree to the license terms.
+                .form-group
+                    button.btn.btn-primary.btn-block(type='submit') Sign Up
+                a.already(href='#') You already have an account? Login here.
+
