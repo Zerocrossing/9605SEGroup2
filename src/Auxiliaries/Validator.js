@@ -29,7 +29,7 @@ function validateSubmission(req) {
 
     return{
         isValid: (v1.isValid && v2.isValid),
-        json: JSON.parse(retVal.json),
+        json: retVal.json,
         message: v1.message + '\n' + v2.message
     } ;
 }
@@ -73,7 +73,6 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
 
 function checkMandatoryFields(json, basicInfo){
     let isValid=true;
-    let jsonObj = JSON.parse(json);
     let emptyMandatoryFields = "";
     let mandatoryFields = ['FileName', 'genus', 'specificEpithet', 'Patch', 'LightAngle1', 'LightAngle2', 'ProbeAngle1', 'ProbeAngle2', 'Replicate']
     if (basicInfo.dataFrom === 'museum') {
@@ -83,7 +82,7 @@ function checkMandatoryFields(json, basicInfo){
         mandatoryFields = mandatoryFields.concat(['UniqueID']);
     }
 
-    jsonObj.forEach(function(item, index) {
+    json.forEach(function(item, index) {
         mandatoryFields.forEach(function (item1, index1) {
             if (typeof (item[item1]) === 'undefined' || item[item1] === '') {
                 isValid = false;

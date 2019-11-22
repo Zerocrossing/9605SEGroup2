@@ -20,7 +20,7 @@ function csvJSON(csv) {
     }
 
     return {
-        json: JSON.stringify(result),
+        json: JSON.parse(JSON.stringify(result)),
         fileNames: fileNamesArr,
     };
 }
