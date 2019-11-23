@@ -100,14 +100,30 @@ module.exports.getQuerySize = function (query) {
 //This function takes in the querystring from the page form and returns a mongo-appropriate query
 function parseQuery(query) {
     parsed = {};
+    // console.log("Parsing query", query)
     //Only accept search terms defined in config and non-empty
     for (var k in query) {
         val = query[k];
-        if (config.searchTerms.includes(k) && val !== "") {
-            parsed[k] = val;
+        // logical OR case
+        if (val.toLowerCase().includes("or")){
+            parsed.$or = [];
+            val.toLowerCase().split("or").forEach(elem => {
+                let pElem = parseTerm(elem);
+                let q = {};
+                q[k] = pElem;
+                parsed.$or.push(q);
+            })
+        }
+        else if (config.searchTerms.includes(k) && val !== "") {
+            parsed[k] = parseTerm(val);
         }
     }
     return parsed;
+}
+//takes a string such as "Merops" and returns the value for a mongo query
+//todo regex this for case insensitivity
+function parseTerm(term){
+    return term.trim();
 }
 
 //Mongo has an variable for options, which controls elements like max count, ect.
@@ -138,6 +154,7 @@ async function getResultsFromDB(query, collectionName, options = {}) {
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
         let result = await collection.find(query, options).toArray();
+        client.close();
         return result;
     } catch (e) {
         console.log(e.message)
@@ -152,6 +169,7 @@ async function getQuerySize(query, collectionName, options = {}) {
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
         let result = await collection.count(query, options);
+        client.close();
         return result;
     } catch (e) {
         console.log(e.message)
