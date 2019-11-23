@@ -184,6 +184,17 @@ input[type="submit" i] {
     background-color: #00000010;
 }
 
+button.download{
+    display: block;
+    height: 60px;
+    width: 300px;
+    font-size: 20px;
+    border: 0;
+    border-radius: 30px;
+    /*margin: auto;*/
+    background-color: white;
+}
+
 .form .register-form {
     display: none
 }
