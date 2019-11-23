@@ -6,7 +6,10 @@ block content
     .search
         form(action='/search' method='post' id="searchForm")
             for term in searchTerms
-                input(type='search' name=term id='searchBar' placeholder=term, value=query[term])
+                if query !== undefined && query[term] !== undefined
+                    input(type='search' name=term id='searchBar' placeholder=term, value=query[term])
+                else
+                    input(type='search' name=term id='searchBar' placeholder=term)
             input(type='submit' value='Search')
             select(name="resultsPerPage", form="searchForm") Entries per page
                 option(value=20) 20
@@ -15,8 +18,15 @@ block content
 
     .searchResults
         script
-        if results !== undefined
+        if results !== undefined && (results.length > 0)
             h3 Displaying  #{results.length} results out of #{count}:
+            script
+                //todo make the query string... somehow
+                - let str = "/download?"
+                - str += "123"
+                    - console.log(str)
+            form(action=str method='get')
+                button.download(type='submit' value=str name='download') Download
             table(id='searchResults')
                 tr
                 for hName in displayResults
