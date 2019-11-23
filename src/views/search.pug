@@ -6,21 +6,22 @@ block content
     .search
         form(action='/search' method='post' id="searchForm")
             for term in searchTerms
-                input(type='search' name=term id='searchBar' placeholder=term)
+                input(type='search' name=term id='searchBar' placeholder=term, value=query[term])
+            input(type='submit' value='Search')
             select(name="resultsPerPage", form="searchForm") Entries per page
                 option(value=20) 20
                 option(value=30) 30
                 option(value=40) 40
-            input(type='submit' value='Search')
 
     .searchResults
-        br
+        script
         if results !== undefined
             h3 Displaying  #{results.length} results out of #{count}:
-            ul
-                for result, num in results
-                    li= num+1
-                    ul
-                        each val, key in result
-                            if val
-                                li #{key}: #{val}
+            table(id='searchResults')
+                tr
+                for hName in displayResults
+                    th #{hName}
+                for result in results
+                    tr
+                        for field in displayResults
+                            td #{result[field]}

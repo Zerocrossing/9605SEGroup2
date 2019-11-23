@@ -6,7 +6,11 @@ const config = require('../config.json');
 
 // Search page render
 router.get('/', function (req, res) {
-    res.render('search', {title: 'Nature\'s Palette', searchTerms: config.searchTerms});
+    res.render('search', {
+        title: 'Nature\'s Palette',
+        searchTerms: config.searchTerms,
+        results: undefined,
+    });
 });
 
 // Post request: responds to search query
@@ -18,8 +22,10 @@ router.post('/', async function (req, res) {
         {
             title: 'Nature\'s Palette',
             searchTerms: config.searchTerms,
+            displayResults: config.displayResults,
             results: await results,
-            count: await count
+            count: await count,
+            query: query
         }
     )
 });
