@@ -24,6 +24,21 @@
     "country",
     "Patch"
   ],
+  "displayResults": [
+    "institutionCode",
+    "collectionCode",
+    "catalogueNumber",
+    "class",
+    "order",
+    "family",
+    "genus",
+    "specificEpithet",
+    "infraspecificEpithet",
+    "sex",
+    "lifeStage",
+    "country",
+    "Patch"
+  ],
   "tempUser": {
     "userName": "Group2",
     "pass": "",
