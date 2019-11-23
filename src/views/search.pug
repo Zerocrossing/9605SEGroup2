@@ -6,7 +6,7 @@ block content
     .search
         form(action='/search' method='post' id="searchForm")
             for term in searchTerms
-                input(type='search' name=term id='searchBar' placeholder=term)
+                input(type='search' name=term id='searchBar' placeholder=term, value=query[term])
             input(type='submit' value='Search')
             select(name="resultsPerPage", form="searchForm") Entries per page
                 option(value=20) 20
@@ -15,7 +15,6 @@ block content
 
     .searchResults
         script
-            - console.log(results)
         if results !== undefined
             h3 Displaying  #{results.length} results out of #{count}:
             table(id='searchResults')

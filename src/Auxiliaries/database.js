@@ -130,6 +130,8 @@ function parseTerm(term){
 function getOptions(query) {
     let options = {};
     options.limit = parseInt(query.resultsPerPage);
+    let limit = parseInt(query.page)*options.limit;
+    options.skip = limit;
     return options;
 }
 

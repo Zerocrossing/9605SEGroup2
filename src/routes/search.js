@@ -24,7 +24,8 @@ router.post('/', async function (req, res) {
             searchTerms: config.searchTerms,
             displayResults: config.displayResults,
             results: await results,
-            count: await count
+            count: await count,
+            query: query
         }
     )
 });
