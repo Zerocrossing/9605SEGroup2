@@ -186,6 +186,7 @@ async function updateDB(filter, update, collectionName) {
         const db = client.db(dbName);
         let collection = db.collection(collectionName);
         let res = await collection.updateMany(filter, update);
+        client.close();
         if (config.debug)
             console.log(res.result.nModified + "Ok: " + res.result.ok)
     } catch (e) {
