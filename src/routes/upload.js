@@ -8,7 +8,10 @@ const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
-    res.render('upload', {title: 'Nature\'s Palette', msg: ''});
+    if(typeof (req.session.userName) === "undefined" )
+        res.redirect('/');
+    else
+        res.render('upload', {title: 'Nature\'s Palette', msg: ''});
 });
 
 // Post request: uploaded files
@@ -17,13 +20,18 @@ router.post('/', function (req, res) {
     if (!req.files || !req.files.meta || !req.files.raw || Object.keys(req.files.meta).length === 0 || Object.keys(req.files.raw).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
+
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-        db.saveData(validationStatus.json, req.files.raw)
+        db.saveData(validationStatus.json, req.files.raw, req.session.userName)
+
     } else {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
     }
+
+
+
 });
 
 module.exports = router;

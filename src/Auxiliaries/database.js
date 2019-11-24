@@ -7,6 +7,7 @@ const dbName = config.db.dbName;
 const dataCollectionName = config.db.dataCollection;
 const userCollectionName = config.db.userCollection;
 const submission = config.db.submission;
+const userInfo = config.db.userInfo;
 const client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
 const common = require('../Auxiliaries/common.js')
 var fs = require('fs');
@@ -18,22 +19,87 @@ client.connect(function (err, db) {
     }
 });
 
+module.exports.verifyUser = async function (userName, password) {
 
-module.exports.saveData = function (metaObject, fileObject) {
+    let query =  {"userName": userName}
+
+    let user = await getUserInfo(query)
+    let usersArr = Object.values(user)
+
+    if(usersArr.length  == 0)
+    {
+        return {
+            "success" : 0,
+            "massage" : "Username is not valid!"
+        }
+    }
+
+    if(user[0]["password"]!= password)
+    {
+        return {
+            "success" : 0,
+            "massage" : "Password is not valid!"
+        }
+    }
+
+    let filter = {"userName": userName}
+    let update = {$set: {"active": enums.ActivationStatus.active, "lastLoginDate":new Date()}}
+
+    await updateDB(filter, update, userInfo)
+
+    return {
+        "success" : 1,
+        "massage" : ""
+    }
+
+}
+module.exports.register = async  function (userName, password, email) {
+
+    let query =  { $or: [ {"userName": userName}, {"email": userName}] }
+
+    let users =await getUserInfo(query)
+    let usersArr = Object.values(users)
+    console.log(usersArr)
+    if(usersArr.length > 0)
+    {
+        return {
+            "success" : 0,
+            "massage" : "A user with the same username or email already registered in the system!"
+        }
+    }
+
+
+    var rec={}
+    rec["userName"] = userName;
+    rec["password"] = password;
+    rec["email"] = email;
+    rec["creationDate"] = new Date();
+    rec["active"] = enums.ActivationStatus.inactive;
+    rec["lastLoginDate"] = null;
+
+    let res = saveSingleObjectToDb(rec, userInfo);
+
+    return {
+        "success" : 1,
+        "massage" : ""
+    }
+};
+
+module.exports.saveData = function (metaObject, fileObject, userName) {
   //  saveObjectToDb(metaObject, dataCollectionName);
 
-    let pathToSave = getLocalPath()
+    let pathToSave = getLocalPath(userName)
     saveFileToLocal(fileObject, pathToSave);
     saveDataToDb(metaObject, pathToSave);
 };
 
-function getLocalPath()
+function getLocalPath(userName)
 {
     let currentDateTime = new Date();
     let formattedCurrentDateTime = currentDateTime.getFullYear()+"-"+ currentDateTime.getMonth()+"-"+ currentDateTime.getDate()
         +"T"+currentDateTime.getHours()+"-"+currentDateTime.getMinutes()+"-"+currentDateTime.getSeconds()
     console.log(formattedCurrentDateTime)
-    let pathToSave = config.dataFilePath + "/" + config.tempUser.userName+"/" + formattedCurrentDateTime;
+    let pathToSave = config.dataFilePath + "/" + /*config.tempUser.userName*/userName+"/" + formattedCurrentDateTime;
     console.log(pathToSave)
     return pathToSave;
 }
@@ -145,6 +211,11 @@ function getOptions(query) {
     return options;
 }
 
+function getUserInfo (query) {
+
+    let result = getResultsFromDB(query, userInfo);
+    return result;
+}
 
 module.exports.getLocalPathFromDb = function (query) {
 

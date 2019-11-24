@@ -6,7 +6,8 @@
     "dbName": "project",
     "dataCollection": "dataTest",
     "userCollection": "userTest",
-    "submission":"submission"
+    "submission":"submission",
+    "userInfo": "userInfo"
   },
   "dataFilePath": "../data",
   "searchTerms": [

@@ -8,6 +8,7 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const fs = require('fs');
 var rawFilevalidator = require('./Auxiliaries/rawFilesValidator')
 
@@ -33,6 +34,9 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
+app.use(session({secret:'anyStringOfText',
+    saveUnInitialized: true,
+    resave: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload());
 
@@ -43,6 +47,7 @@ app.use('/search', search);
 app.use('/download', download);
 app.use('/login', login);
 
+
 // start server
 app.set('port', process.env.PORT || config.port);
 const server = app.listen(app.get('port'), function () {
@@ -50,8 +55,8 @@ const server = app.listen(app.get('port'), function () {
 
 
     console.log("Scheduler is going to start with interval:" + config.schedulerInterval);
-    let scheduler = setInterval(function () {
-        //console.log("scheduler is running !");
+   let scheduler = setInterval(function () {
+       // console.log("scheduler is running !");
         rawFilevalidator.processRawFiles();
     }, config.schedulerInterval);
 });

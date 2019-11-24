@@ -11,5 +11,11 @@ var validationStatus = {
 
 };
 
+var ActivationStatus = {
+    inactive: 0,
+    active: 1,
+    };
+
 exports.processingStatus = processingStatus;
 exports.validationStatus = validationStatus;
+exports.ActivationStatus = ActivationStatus;
