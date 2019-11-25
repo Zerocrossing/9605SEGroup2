@@ -158,14 +158,13 @@ module.exports.getLocalPathFromDb = function (query, parse = false) {
 module.exports.getPathsFromQuery = async function(query)
 {
     query = parseQuery(query);
-    console.log(query);
     let proj = {"filePath": 1};
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(dataCollectionName);
     // let result = await collection.find(query).project({}).toArray();
     let result = await collection.find(query).project(proj).toArray();
-    client.close()
+    client.close();
     return result;
 };
 
