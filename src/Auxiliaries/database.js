@@ -50,6 +50,7 @@ function savePathToDb() {
 }*/
 
 // saves the raw data files to the directory given in config.dataFilePath, excluding .csv files
+//todo need to store a reference to a file's location in the database
 function saveFileToLocal(fileObjects) {
     if (typeof fileObjects.length === 'undefined') {
         fileObjects = [fileObjects];
@@ -136,11 +137,13 @@ function getOptions(query) {
 }
 
 
-module.exports.getLocalPathFromDb = function (query) {
-
+module.exports.getLocalPathFromDb = function (query, parse=false) {
+    if (parse){
+        query = parseQuery(query);
+    }
     let result = getResultsFromDB(query, LocalPathsOfRawFiles);
     return result;
-}
+};
 
 module.exports.updateLocalPathInDb = function (filter, update) {
 
