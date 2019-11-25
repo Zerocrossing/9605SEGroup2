@@ -108,6 +108,7 @@ function getLocalPath(userName)
 async function saveDataToDb(metaObject, pathToSave) {
     let rec = {}
 
+
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
 
@@ -274,6 +275,7 @@ async function updateDB(filter, update, collectionName) {
     const db = client.db(dbName);
     let collection = db.collection(collectionName);
     let res = await collection.updateMany(filter, update);
+    client.close();
     if (config.debug)
     {
         console.log(collectionName + "updated!" + "by filter:" + filter + " and set exp: " + update)
