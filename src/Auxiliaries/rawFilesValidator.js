@@ -93,7 +93,7 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
 }
 
 function validateRawFiles(pathRec){
-
+    console.log("Validating Raw Files with path: ", pathRec);
     let filter = {$and:[{"path":pathRec.path}, {"processingStatus": enums.processingStatus.unprocessed}] }
     let update = {$set:{"processingStatus":enums.processingStatus.inProgress}}
 
