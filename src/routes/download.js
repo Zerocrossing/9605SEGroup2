@@ -15,3 +15,10 @@ router.get('/', async function (req, res) {
 });
 
 module.exports = router;
+
+//upon being passed the result of a mongoquery this returns a zip containing all the local files
+function getZipFromFilePaths(queryResult) {
+    for (const path of queryResult){
+        //todo
+    }
+}
