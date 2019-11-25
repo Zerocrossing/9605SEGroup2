@@ -18,7 +18,6 @@ router.post('/', function (req, res) {
         return res.status(400).send('No files were uploaded.');
     }
     let validationStatus = validator.validateSubmission(req)
-    console.log("Test files validated, returning : ",validationStatus)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
         db.saveData(validationStatus.json, req.files.raw)

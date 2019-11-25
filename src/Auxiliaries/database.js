@@ -19,7 +19,8 @@ client.connect(function (err, db) {
 });
 
 
-module.exports.saveData = function (metaObject, fileObject) {
+module.exports.saveData = function (metaObject, fileObject, userName = "noUser") {
+    appendData(metaObject, userName);
     saveObjectToDb(metaObject, dataCollectionName);
     saveFileToLocal(fileObject);
     savePathToDb();
@@ -34,6 +35,14 @@ function savePathToDb() {
     recs.push(rec)
     saveObjectToDb(recs, LocalPathsOfRawFiles);
 
+}
+
+//adds extra data to the metadata file used by processing and other
+function appendData(metaObject, userName) {
+    let path = config.dataFilePath + "/" + userName + "/";
+    for (elem of metaObject) {
+        elem.filePath = path + elem.FileName;
+    }
 }
 
 // saves the metadata to the database
@@ -106,7 +115,7 @@ function parseQuery(query) {
     for (var k in query) {
         val = query[k];
         // logical OR case
-        if (val.toLowerCase().includes("or")){
+        if (val.toLowerCase().includes("or")) {
             parsed.$or = [];
             val.toLowerCase().split("or").forEach(elem => {
                 let pElem = parseTerm(elem);
@@ -114,16 +123,16 @@ function parseQuery(query) {
                 q[k] = pElem;
                 parsed.$or.push(q);
             })
-        }
-        else if (config.searchTerms.includes(k) && val !== "") {
+        } else if (config.searchTerms.includes(k) && val !== "") {
             parsed[k] = parseTerm(val);
         }
     }
     return parsed;
 }
+
 //takes a string such as "Merops" and returns the value for a mongo query
 //todo regex this for case insensitivity
-function parseTerm(term){
+function parseTerm(term) {
     return term.trim();
 }
 
@@ -131,17 +140,32 @@ function parseTerm(term){
 function getOptions(query) {
     let options = {};
     options.limit = parseInt(query.resultsPerPage);
-    let limit = parseInt(query.page)*options.limit;
+    let limit = parseInt(query.page) * options.limit;
     options.skip = limit;
     return options;
 }
 
 
-module.exports.getLocalPathFromDb = function (query, parse=false) {
-    if (parse){
+module.exports.getLocalPathFromDb = function (query, parse = false) {
+    if (parse) {
         query = parseQuery(query);
     }
     let result = getResultsFromDB(query, LocalPathsOfRawFiles);
+    return result;
+};
+
+//as above but assumes files store their own filePath attributes
+module.exports.getPathsFromQuery = async function(query)
+{
+    query = parseQuery(query);
+    console.log(query);
+    let proj = {"filePath": 1};
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(dataCollectionName);
+    // let result = await collection.find(query).project({}).toArray();
+    let result = await collection.find(query).project(proj).toArray();
+    client.close()
     return result;
 };
 
