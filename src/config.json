@@ -40,11 +40,6 @@
     "country",
     "Patch"
   ],
-  "tempUser": {
-    "userName": "Group2",
-    "pass": "",
-    "email": ""
-  },
   "schedulerInterval": 120000,
   "rawFileExtension": [
     ".Master.Transmission"

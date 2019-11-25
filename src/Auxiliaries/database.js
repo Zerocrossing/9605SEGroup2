@@ -85,21 +85,24 @@ module.exports.register = async  function (userName, password, email) {
         "massage" : ""
     }
 };
-module.exports.saveData = function (metaObject, fileObject) {
+module.exports.saveData = function (metaObject, fileObject, userName) {
+    //  saveObjectToDb(metaObject, dataCollectionName);
     appendData(metaObject, userName);
-    saveObjectToDb(metaObject, dataCollectionName);
-    saveFileToLocal(fileObject);
-    savePathToDb();
-};
 
-function savePathToDb() {
+    let pathToSave = getLocalPath(userName)
+    saveFileToLocal(fileObject, pathToSave);
+    saveDataToDb(metaObject, pathToSave);
+    savePathToDb(pathToSave);
+};
+// todo discuss
+function savePathToDb(pathToSave) {
     let rec = {}
     let recs = []
 
-    rec["path"] = config.dataFilePath + "/" + config.tempUser.userName
+    rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
     recs.push(rec)
-    saveObjectToDb(recs, LocalPathsOfRawFiles);
+    saveObjectToDb(recs, submission);
 
 }
 function getLocalPath(userName)
@@ -114,7 +117,6 @@ function getLocalPath(userName)
 }
 async function saveDataToDb(metaObject, pathToSave) {
     let rec = {}
-
 
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
@@ -177,13 +179,16 @@ function saveFileToLocal(fileObjects, pathToSave) {
         console.log("Items stored on disk");
     }
 }
+
 // takes in the raw post request and returns an array of data objects from the database
 module.exports.getQueryResults = function (query) {
     let parsedQuery = parseQuery(query);
     let options = getOptions(query);
+
     results = getResultsFromDB(parsedQuery, dataCollectionName, options);
     return results;
 };
+
 
 module.exports.getMetadata = function (query) {
 
@@ -241,6 +246,12 @@ function getOptions(query) {
 function getUserInfo (query) {
 
     let result = getResultsFromDB(query, userInfo);
+    return result;
+}
+
+module.exports.updateLocalPathInDb = function (filter, update) {
+
+    let result = updateDB(filter, update, submission);
     return result;
 }
 
