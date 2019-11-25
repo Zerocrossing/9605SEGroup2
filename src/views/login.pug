@@ -27,7 +27,11 @@ block content
                         | Not Registered?
                         a(href="#")
                             | Register
+        if msg
+            div(style='text-align: center; color: red;')
+                pre(style='display: inline-block; background-color: #FFFFFFAA; border-radius: 8px; padding: 10px;')= msg
 
     script.
         $('.message a').click(function(){
         $('form').animate({height:"toggle", opacity: "toggle"}, "slow");});
+

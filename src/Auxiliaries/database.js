@@ -49,7 +49,8 @@ module.exports.verifyUser = async function (userName, password) {
 
     return {
         "success" : 1,
-        "massage" : ""
+        "massage" : "",
+        "user":user[0]
     }
 
 }
