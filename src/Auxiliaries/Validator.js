@@ -18,8 +18,7 @@ function validateSubmission(req) {
         if (name.substr(name.length - 3) === 'zip') {
             let ret = common.getZippedFileNames(rawFiles[i])
             rawFileNames = rawFileNames.concat(ret.rawFileNames)
-           }
-        else {
+        } else {
             rawFileNames.push(name);
         }
     }
@@ -27,62 +26,61 @@ function validateSubmission(req) {
     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
     let v2 = checkMandatoryFields(retVal.json, basicInfo);
 
-    return{
+    return {
         isValid: (v1.isValid && v2.isValid),
         json: retVal.json,
         message: v1.message + '\n' + v2.message
-    } ;
+    };
 }
 
 function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
     rawFileNames.sort();
     metadataRawFileNames.sort();
-
+    //remove valid extensions from all filenames
     for (let i = 0; i < rawFileNames.length; i++) {
-        let FoundExtension = false;
-        for (let j = 0; j < config.rawFileExtension.length; j++) {
-            if (rawFileNames[i].length > config.rawFileExtension[j].length) {
-                let nameExtension = rawFileNames[i].substr(config.rawFileExtension[j].length);
-                if (nameExtension === config.rawFileExtension[j]) {
-                    FoundExtension = true;
-                    rawFileNames[i] = rawFileNames[i].substr(0, config.rawFileExtension[j].length);
-                    break;
-                }
-            }
-        }
-        if (!FoundExtension) {
-            rawFileNames[i] = rawFileNames[i].replace(/\.[^/.]+$/, '');
-        }
+        rawFileNames[i] = removeKnownExtensions(rawFileNames[i])
     }
-
+    for (let i = 0; i < metadataRawFileNames.length; i++) {
+        metadataRawFileNames[i] = removeKnownExtensions(metadataRawFileNames[i])
+    }
     let rawFileNamesStr = rawFileNames.toString();
     let metadataRawFileNamesStr = metadataRawFileNames.toString();
-
     if (rawFileNamesStr.toLowerCase().localeCompare(metadataRawFileNamesStr.toLowerCase()) != 0) {
         return {
-            isValid : false,
-            message:"Raw Files don't match the metadata!"
+            isValid: false,
+            message: "Raw Files don't match the metadata!"
         }
     }
-
     return {
-        isValid : true,
-        message:""
+        isValid: true,
+        message: ""
     }
 }
 
-function checkMandatoryFields(json, basicInfo){
-    let isValid=true;
+function removeKnownExtensions(fileName) {
+    for (let j = 0; j < config.rawFileExtension.length; j++) {
+        let extension = config.rawFileExtension[j];
+        let exLen = extension.length;
+        fileTail = fileName.slice(-exLen);
+        if (fileTail === extension) {
+            return fileName.substring(0, fileName.length - exLen)
+        }
+    }
+    //no match found
+    return fileName
+}
+
+function checkMandatoryFields(json, basicInfo) {
+    let isValid = true;
     let emptyMandatoryFields = "";
     let mandatoryFields = ['FileName', 'genus', 'specificEpithet', 'Patch', 'LightAngle1', 'LightAngle2', 'ProbeAngle1', 'ProbeAngle2', 'Replicate']
     if (basicInfo.dataFrom === 'museum') {
         mandatoryFields = mandatoryFields.concat(['institutionCode', 'catalogueNumber']);
-    }
-    else if (basicInfo.dataFrom === 'field') {
+    } else if (basicInfo.dataFrom === 'field') {
         mandatoryFields = mandatoryFields.concat(['UniqueID']);
     }
 
-    json.forEach(function(item, index) {
+    json.forEach(function (item, index) {
         mandatoryFields.forEach(function (item1, index1) {
             if (typeof (item[item1]) === 'undefined' || item[item1] === '') {
                 isValid = false;
@@ -92,7 +90,7 @@ function checkMandatoryFields(json, basicInfo){
     });
 
     return {
-        isValid : isValid,
+        isValid: isValid,
         message: isValid == false ? "Some mandatory fields are empty:\n" + emptyMandatoryFields : ""
     }
 }

@@ -85,15 +85,23 @@ module.exports.register = async  function (userName, password, email) {
         "massage" : ""
     }
 };
-
-module.exports.saveData = function (metaObject, fileObject, userName) {
-  //  saveObjectToDb(metaObject, dataCollectionName);
-
-    let pathToSave = getLocalPath(userName)
-    saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave);
+module.exports.saveData = function (metaObject, fileObject) {
+    appendData(metaObject, userName);
+    saveObjectToDb(metaObject, dataCollectionName);
+    saveFileToLocal(fileObject);
+    savePathToDb();
 };
 
+function savePathToDb() {
+    let rec = {}
+    let recs = []
+
+    rec["path"] = config.dataFilePath + "/" + config.tempUser.userName
+    rec["processingStatus"] = enums.processingStatus.unprocessed;
+    recs.push(rec)
+    saveObjectToDb(recs, LocalPathsOfRawFiles);
+
+}
 function getLocalPath(userName)
 {
     let currentDateTime = new Date();
@@ -104,7 +112,6 @@ function getLocalPath(userName)
     console.log(pathToSave)
     return pathToSave;
 }
-
 async function saveDataToDb(metaObject, pathToSave) {
     let rec = {}
 
@@ -124,6 +131,26 @@ async function saveDataToDb(metaObject, pathToSave) {
 
     saveObjectToDb(metaTobeSaved, dataCollectionName);
 }
+//adds extra data to the metadata file used by processing and other
+function appendData(metaObject, userName) {
+    let path = config.dataFilePath + "/" + userName + "/";
+    for (elem of metaObject) {
+        elem.filePath = path + elem.FileName;
+    }
+}
+// saves the metadata to the database
+/*function saveMetaToDatabase(metaObject) {
+    let documents;
+    documents = metaObject;
+    let dataCollection = client.db(dbName).collection(dataCollectionName);
+    dataCollection.insertMany(documents, function (err, res) {
+        if (err) throw err;
+        if (config.debug) {
+            console.log("Items added to DB");
+        }
+    });
+}*/
+
 
 // saves the raw data files to the directory given in config.dataFilePath, excluding .csv files
 function saveFileToLocal(fileObjects, pathToSave) {
@@ -131,7 +158,7 @@ function saveFileToLocal(fileObjects, pathToSave) {
         fileObjects = [fileObjects];
     }
 
-   if (!fs.existsSync(pathToSave)) {
+    if (!fs.existsSync(pathToSave)) {
         fs.mkdirSync(pathToSave,{ recursive: true });
     }
     fileObjects.forEach(function (fileObj) {
@@ -150,12 +177,10 @@ function saveFileToLocal(fileObjects, pathToSave) {
         console.log("Items stored on disk");
     }
 }
-
 // takes in the raw post request and returns an array of data objects from the database
 module.exports.getQueryResults = function (query) {
     let parsedQuery = parseQuery(query);
     let options = getOptions(query);
-
     results = getResultsFromDB(parsedQuery, dataCollectionName, options);
     return results;
 };
@@ -220,10 +245,26 @@ function getUserInfo (query) {
 }
 
 module.exports.getLocalPathFromDb = function (query) {
-
+    if (parse) {
+        query = parseQuery(query);
+    }
     let result = getResultsFromDB(query, submission);
     return result;
-}
+};
+
+//as above but assumes files store their own filePath attributes
+module.exports.getPathsFromQuery = async function(query)
+{
+    query = parseQuery(query);
+    let proj = {"filePath": 1};
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(dataCollectionName);
+    // let result = await collection.find(query).project({}).toArray();
+    let result = await collection.find(query).project(proj).toArray();
+    client.close();
+    return result;
+};
 
 module.exports.updateLocalPathInDb = function (filter, update) {
 
@@ -236,7 +277,6 @@ module.exports.updateMetadate = function (filter, update) {
     let result = updateDB(filter, update, dataCollectionName);
     return result;
 }
-
 // returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
     //todo logic
@@ -282,7 +322,6 @@ async function updateDB(filter, update, collectionName) {
         console.log("ret: " + JSON.stringify(res))
         console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
     }
-
 
 
 }

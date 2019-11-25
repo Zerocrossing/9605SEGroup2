@@ -20,13 +20,8 @@ block content
         script
         if results !== undefined && (results.length > 0)
             h3 Displaying  #{results.length} results out of #{count}:
-            script
-                //todo make the query string... somehow
-                - let str = "/download?"
-                - str += "123"
-                    - console.log(str)
-            form(action=str method='get')
-                button.download(type='submit' value=str name='download') Download
+            form(action="/download?" method='get')
+                button.download(type='submit' value=qString name='download') Download
             table(id='searchResults')
                 tr
                 for hName in displayResults
