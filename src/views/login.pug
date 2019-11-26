@@ -8,7 +8,7 @@ block content
             div.form
                 form.register-form(id='RegisterForm' action='/login' method='post' encType='multipart/form-data')
                     input(type="text" name="userName" placeholder="user name")
-                    input(type="text" name="password" placeholder="pasword")
+                    input(type="password" name="password" placeholder="pasword")
                     input(type="text" name="email" placeholder="email id")
 
                     button(name = "createButton")
@@ -20,7 +20,7 @@ block content
 
                 form.login-form(id='loginForm' action='/login'+'?redir='+redir method='post' encType='multipart/form-data')
                     input(type="text" name="userName" placeholder="username")
-                    input(type="text" name="password" placeholder="pasword")
+                    input(type="password" name="password" placeholder="pasword")
                     button(name = "LoginButton")
                         | login
                     p.message
