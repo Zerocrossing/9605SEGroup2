@@ -85,28 +85,15 @@ module.exports.register = async  function (userName, password, email) {
         "massage" : ""
     }
 };
-module.exports.saveData = function (metaObject, fileObject, userInfo, submitType) {
+module.exports.saveData = function (metaObject, fileObject, userInfo) {
     //  saveObjectToDb(metaObject, dataCollectionName);
-    // todo discuss
     appendData(metaObject, userInfo["userName"]);
 
-    let pathToSave = getLocalPath("userName")
+    let pathToSave = getLocalPath(userInfo["userName"]);
     saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave, userInfo, submitType);
-   // savePathToDb(pathToSave);
-};
-
-module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, submitType) {
-    //  saveObjectToDb(metaObject, dataCollectionName);
-
-    //appendData(metaObject, userInfo["userName"]);
-
-    let pathToSave = getLocalPath("userName")+"/Modified"
-    saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave, userInfo, submitType);
+    saveDataToDb(metaObject, pathToSave, userInfo);
     // savePathToDb(pathToSave);
 };
-
 // todo discuss
 function savePathToDb(pathToSave) {
     let rec = {}
@@ -118,8 +105,6 @@ function savePathToDb(pathToSave) {
     saveObjectToDb(recs, submission);
 
 }
-
-
 function getLocalPath(userName)
 {
     let currentDateTime = new Date();
@@ -128,16 +113,14 @@ function getLocalPath(userName)
     console.log(formattedCurrentDateTime)
     let pathToSave = config.dataFilePath + "/" + /*config.tempUser.userName*/userName+"/" + formattedCurrentDateTime;
     console.log(pathToSave)
-
     return pathToSave;
 }
-async function saveDataToDb(metaObject, pathToSave, userInfo, submitType) {
+async function saveDataToDb(metaObject, pathToSave, userInfo) {
     let rec = {}
 
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
     rec["userRefId"] = userInfo._id;
-    rec["submitType"]  = submitType;
 
     let res = await saveSingleObjectToDb(rec, submission);
     console.log(JSON.stringify(res));
@@ -153,9 +136,9 @@ async function saveDataToDb(metaObject, pathToSave, userInfo, submitType) {
 }
 //adds extra data to the metadata file used by processing and other
 function appendData(metaObject, userName) {
-    let path = config.dataFilePath + "/" + userName + "/";
+    let path = getLocalPath(userName);
     for (elem of metaObject) {
-        elem.filePath = path + elem.FileName;
+        elem.filePath = path + "/" + elem.FileName;
     }
 }
 // saves the metadata to the database
@@ -273,7 +256,7 @@ module.exports.updateLocalPathInDb = function (filter, update) {
     return result;
 }
 
-module.exports.getLocalPathFromDb = function (query, parse = true) {
+module.exports.getLocalPathFromDb = function (query, parse=true) {
     if (parse) {
         query = parseQuery(query);
     }
@@ -285,12 +268,13 @@ module.exports.getLocalPathFromDb = function (query, parse = true) {
 module.exports.getPathsFromQuery = async function(query)
 {
     query = parseQuery(query);
-    let proj = {"filePath": 1};
+    let proj = {"filePath": 1, "extension" : 1};
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(dataCollectionName);
     // let result = await collection.find(query).project({}).toArray();
     let result = await collection.find(query).project(proj).toArray();
+    console.log(result);
     client.close();
     return result;
 };
@@ -308,7 +292,6 @@ module.exports.updateMetadate = function (filter, update) {
 }
 // returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
-    //todo logic
     try {
         const client = await MongoClient.connect(url);
         const db = client.db(dbName);
@@ -355,21 +338,6 @@ async function updateDB(filter, update, collectionName) {
 
 }
 
-module.exports.deleteOne = async function (filter, collectionName) {
-
-    const client = await MongoClient.connect(url);
-    const db = client.db(dbName);
-    let collection = db.collection(collectionName);
-    let res = await collection.deleteOne(filter);
-    client.close();
-    if (config.debug)
-    {
-       // console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
-    }
-}
-
-
 // save collection
 async function saveObjectToDb(objectTobeSaved, collectionName) {
     let documents;
@@ -389,5 +357,9 @@ async function saveSingleObjectToDb(objectTobeSaved, collectionName) {
     return res;
 }
 
-exports.saveSingleObjectToDb = saveSingleObjectToDb;
+//when passed a username returns a list of all their submissions
+module.exports.getUserSubmissions = async function (userID) {
+    let query = {userRefId: userID};
+    return getResultsFromDB(query, submission);
+};
 
