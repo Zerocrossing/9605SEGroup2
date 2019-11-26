@@ -8,7 +8,6 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const fs = require('fs');
 var rawFilevalidator = require('./Auxiliaries/rawFilesValidator')
 
 
@@ -42,6 +41,52 @@ app.use('/upload', upload);
 app.use('/search', search);
 app.use('/download', download);
 app.use('/login', login);
+
+// template downloads
+app.get('/templateDownload', function (req, res) {
+    console.log(req.query);
+    switch (req.query.type) {
+        case "reflectanceF":
+            res.download('./public/templates/reflectanceF.csv', 'ReflectanceFieldTemplace.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        case "reflectanceM":
+            res.download('./public/templates/reflectanceM.csv', 'ReflectanceMuseumTemplace.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        case "transmittanceF":
+            res.download('./public/templates/transmittanceF.csv', 'TransmittanceFieldTemplate.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        case "transmittanceM":
+            res.download('./public/templates/transmittanceM.csv', 'TransmittanceMuseumTemplate.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        case "irradianceF":
+            res.download('./public/templates/irradianceF.csv', 'IrradianceFieldTemplate.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        case "irradianceM":
+            res.download('./public/templates/irradianceM.csv', 'IrradianceMuseumTemplate.csv', function (err) {
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                console.log(err);
+            });
+            break;
+        default:
+            res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+            break;
+    }
+});
 
 // start server
 app.set('port', process.env.PORT || config.port);

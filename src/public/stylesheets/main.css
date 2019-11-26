@@ -86,6 +86,22 @@ button.navButton:hover {
     margin: 0 auto;
 }
 
+.uploadTemplate {
+    display: inline-block;
+    margin: 5px auto;
+    background-color: #888888;
+    border: groove;
+    border-radius: 8px;
+    border-width: 2px;
+}
+
+.uploadTemplate a {
+    margin: 4px 4px;
+}
+.uploadTemplate p {
+    margin: 10px 10px;
+}
+
 .error1 {
     border: solid;
     border-width: 2px;
@@ -141,7 +157,7 @@ button.navButton:hover {
     text-align: center;
 }
 
-input[type="search" i] {
+#searchForm input[type="search" i] {
     height: 60px;
     font-size: 20px;
     display: inline-grid;
@@ -153,7 +169,7 @@ input[type="search" i] {
     text-align: center;
 }
 
-input[type="submit" i] {
+#searchForm input[type="submit" i] {
     display: block;
     height: 60px;
     width: 500px;
