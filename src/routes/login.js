@@ -11,7 +11,7 @@ router.get('/', function (req, res) {
 });
 
 router.post('/',async function (req, res) {
-    let redir = !req.query.redir? 'upload' : req.query.redir;
+    let redir = req.query.redir=="undefined"? 'upload' : req.query.redir;
     if(typeof (req.body.createButton) != "undefined")
     {
         let ret =await db.register(req.body.userName, req.body.password, req.body.email);
