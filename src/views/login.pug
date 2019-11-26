@@ -2,7 +2,7 @@
 
 block content
     h1= title
-    p This is a login page.
+    p Please sign in to continue using Natures Palette.
     div.center
         div.login-page
             div.form
@@ -18,7 +18,7 @@ block content
                         a(href="#")
                             | Login
 
-                form.login-form(id='loginForm' action='/login' method='post' encType='multipart/form-data')
+                form.login-form(id='loginForm' action='/login'+'?redir='+redir method='post' encType='multipart/form-data')
                     input(type="text" name="userName" placeholder="username")
                     input(type="text" name="password" placeholder="pasword")
                     button(name = "LoginButton")

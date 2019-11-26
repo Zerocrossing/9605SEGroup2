@@ -7,7 +7,7 @@ const common = require('../Auxiliaries/common.js');
 
 router.get('/', async function (req, res) {
     if (typeof (req.session.userInfo) === "undefined") {
-        res.redirect('/login');
+        res.redirect('/login' + '?redir=modify');
         return;
     }
     let usr = "Bob";
