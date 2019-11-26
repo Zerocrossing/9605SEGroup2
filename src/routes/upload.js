@@ -8,8 +8,8 @@ const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
-    if(typeof (req.session.userName) === "undefined" )
-        res.redirect('/');
+    if(typeof (req.session.userInfo) === "undefined" )
+        res.redirect('/login');
     else
         res.render('upload', {title: 'Nature\'s Palette', msg: ''});
 });
@@ -24,7 +24,7 @@ router.post('/', function (req, res) {
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-        db.saveData(validationStatus.json, req.files.raw, req.session.userName)
+        db.saveData(validationStatus.json, req.files.raw, req.session.userInfo)
 
     } else {
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});

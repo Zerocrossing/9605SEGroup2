@@ -30,7 +30,6 @@ router.post('/',async function (req, res) {
         if(ret.success == 1)
         {
             req.session.userInfo = ret["user"]
-            req.session.userName = req.body.userName;
             res.redirect('/upload');
         }
         else {

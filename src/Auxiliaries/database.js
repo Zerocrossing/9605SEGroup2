@@ -85,14 +85,14 @@ module.exports.register = async  function (userName, password, email) {
         "massage" : ""
     }
 };
-module.exports.saveData = function (metaObject, fileObject, userName) {
+module.exports.saveData = function (metaObject, fileObject, userInfo) {
     //  saveObjectToDb(metaObject, dataCollectionName);
-    appendData(metaObject, userName);
+    appendData(metaObject, userInfo["userName"]);
 
-    let pathToSave = getLocalPath(userName)
+    let pathToSave = getLocalPath("userName")
     saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave);
-    savePathToDb(pathToSave);
+    saveDataToDb(metaObject, pathToSave, userInfo);
+   // savePathToDb(pathToSave);
 };
 // todo discuss
 function savePathToDb(pathToSave) {
@@ -115,11 +115,12 @@ function getLocalPath(userName)
     console.log(pathToSave)
     return pathToSave;
 }
-async function saveDataToDb(metaObject, pathToSave) {
+async function saveDataToDb(metaObject, pathToSave, userInfo) {
     let rec = {}
 
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
+    rec["userRefId"] = userInfo._id;
 
     let res = await saveSingleObjectToDb(rec, submission);
     console.log(JSON.stringify(res));
