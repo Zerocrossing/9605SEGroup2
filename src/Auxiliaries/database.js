@@ -6,7 +6,8 @@ const url = config.db.url;
 const dbName = config.db.dbName;
 const dataCollectionName = config.db.dataCollection;
 const userCollectionName = config.db.userCollection;
-const LocalPathsOfRawFiles = config.db.LocalPathsOfRawFiles;
+const submission = config.db.submission;
+const userInfo = config.db.userInfo;
 const client = new MongoClient(url, {useNewUrlParser: true, useUnifiedTopology: true});
 const common = require('../Auxiliaries/common.js')
 var fs = require('fs');
@@ -18,24 +19,128 @@ client.connect(function (err, db) {
     }
 });
 
+module.exports.verifyUser = async function (userName, password) {
 
-module.exports.saveData = function (metaObject, fileObject) {
-    saveObjectToDb(metaObject, dataCollectionName);
-    saveFileToLocal(fileObject);
-    savePathToDb();
+    let query =  {"userName": userName}
+
+    let user = await getUserInfo(query)
+    let usersArr = Object.values(user)
+
+    if(usersArr.length  == 0)
+    {
+        return {
+            "success" : 0,
+            "massage" : "Username is not valid!"
+        }
+    }
+
+    if(user[0]["password"]!= password)
+    {
+        return {
+            "success" : 0,
+            "massage" : "Password is not valid!"
+        }
+    }
+
+    let filter = {"userName": userName}
+    let update = {$set: {"active": enums.ActivationStatus.active, "lastLoginDate":new Date()}}
+
+    await updateDB(filter, update, userInfo)
+
+    return {
+        "success" : 1,
+        "massage" : "",
+        "user":user[0]
+    }
+
+}
+module.exports.register = async  function (userName, password, email) {
+
+    let query =  { $or: [ {"userName": userName}, {"email": userName}] }
+
+    let users =await getUserInfo(query)
+    let usersArr = Object.values(users)
+    console.log(usersArr)
+    if(usersArr.length > 0)
+    {
+        return {
+            "success" : 0,
+            "massage" : "A user with the same username or email already registered in the system!"
+        }
+    }
+
+
+    var rec={}
+    rec["userName"] = userName;
+    rec["password"] = password;
+    rec["email"] = email;
+    rec["creationDate"] = new Date();
+    rec["active"] = enums.ActivationStatus.inactive;
+    rec["lastLoginDate"] = null;
+
+    let res = saveSingleObjectToDb(rec, userInfo);
+
+    return {
+        "success" : 1,
+        "massage" : ""
+    }
 };
+module.exports.saveData = function (metaObject, fileObject, userInfo) {
+    //  saveObjectToDb(metaObject, dataCollectionName);
+    appendData(metaObject, userInfo["userName"]);
 
-function savePathToDb() {
+    let pathToSave = getLocalPath("userName")
+    saveFileToLocal(fileObject, pathToSave);
+    saveDataToDb(metaObject, pathToSave, userInfo);
+   // savePathToDb(pathToSave);
+};
+// todo discuss
+function savePathToDb(pathToSave) {
     let rec = {}
     let recs = []
 
-    rec["path"] = config.dataFilePath + "/" + config.tempUser.userName
+    rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
     recs.push(rec)
-    saveObjectToDb(recs, LocalPathsOfRawFiles);
+    saveObjectToDb(recs, submission);
 
 }
+function getLocalPath(userName)
+{
+    let currentDateTime = new Date();
+    let formattedCurrentDateTime = currentDateTime.getFullYear()+"-"+ currentDateTime.getMonth()+"-"+ currentDateTime.getDate()
+        +"T"+currentDateTime.getHours()+"-"+currentDateTime.getMinutes()+"-"+currentDateTime.getSeconds()
+    console.log(formattedCurrentDateTime)
+    let pathToSave = config.dataFilePath + "/" + /*config.tempUser.userName*/userName+"/" + formattedCurrentDateTime;
+    console.log(pathToSave)
+    return pathToSave;
+}
+async function saveDataToDb(metaObject, pathToSave, userInfo) {
+    let rec = {}
 
+    rec["path"] = pathToSave
+    rec["processingStatus"] = enums.processingStatus.unprocessed;
+    rec["userRefId"] = userInfo._id;
+
+    let res = await saveSingleObjectToDb(rec, submission);
+    console.log(JSON.stringify(res));
+
+    let metaTobeSaved = []
+    metaObject.forEach(function (elem) {
+        elem["refId"] = res.ops[0]._id;
+        elem["validationStatus"] = enums.validationStatus.unknown
+        metaTobeSaved.push(elem);
+    })
+
+    saveObjectToDb(metaTobeSaved, dataCollectionName);
+}
+//adds extra data to the metadata file used by processing and other
+function appendData(metaObject, userName) {
+    let path = config.dataFilePath + "/" + userName + "/";
+    for (elem of metaObject) {
+        elem.filePath = path + elem.FileName;
+    }
+}
 // saves the metadata to the database
 /*function saveMetaToDatabase(metaObject) {
     let documents;
@@ -49,21 +154,15 @@ function savePathToDb() {
     });
 }*/
 
+
 // saves the raw data files to the directory given in config.dataFilePath, excluding .csv files
-function saveFileToLocal(fileObjects) {
+function saveFileToLocal(fileObjects, pathToSave) {
     if (typeof fileObjects.length === 'undefined') {
         fileObjects = [fileObjects];
     }
 
-    /*try {
-        fs..accessSync(myDir);
-    } catch (e) {
-        fs.mkdirSync(myDir);
-    }*/
-
-    let pathToSave = config.dataFilePath + "/" + config.tempUser.userName;
     if (!fs.existsSync(pathToSave)) {
-        fs.mkdirSync(pathToSave);
+        fs.mkdirSync(pathToSave,{ recursive: true });
     }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
@@ -86,7 +185,17 @@ function saveFileToLocal(fileObjects) {
 module.exports.getQueryResults = function (query) {
     let parsedQuery = parseQuery(query);
     let options = getOptions(query);
+
     results = getResultsFromDB(parsedQuery, dataCollectionName, options);
+    return results;
+};
+
+
+module.exports.getMetadata = function (query) {
+
+    let options = getOptions(query);
+
+    results = getResultsFromDB(query, dataCollectionName, options);
     return results;
 };
 
@@ -135,19 +244,51 @@ function getOptions(query) {
     return options;
 }
 
+function getUserInfo (query) {
 
-module.exports.getLocalPathFromDb = function (query) {
-
-    let result = getResultsFromDB(query, LocalPathsOfRawFiles);
+    let result = getResultsFromDB(query, userInfo);
     return result;
 }
 
 module.exports.updateLocalPathInDb = function (filter, update) {
 
-    let result = updateDB(filter, update, LocalPathsOfRawFiles);
+    let result = updateDB(filter, update, submission);
     return result;
 }
 
+module.exports.getLocalPathFromDb = function (query) {
+    if (parse) {
+        query = parseQuery(query);
+    }
+    let result = getResultsFromDB(query, submission);
+    return result;
+};
+
+//as above but assumes files store their own filePath attributes
+module.exports.getPathsFromQuery = async function(query)
+{
+    query = parseQuery(query);
+    let proj = {"filePath": 1};
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(dataCollectionName);
+    // let result = await collection.find(query).project({}).toArray();
+    let result = await collection.find(query).project(proj).toArray();
+    client.close();
+    return result;
+};
+
+module.exports.updateLocalPathInDb = function (filter, update) {
+
+    let result = updateDB(filter, update, submission);
+    return result;
+}
+
+module.exports.updateMetadate = function (filter, update) {
+
+    let result = updateDB(filter, update, dataCollectionName);
+    return result;
+}
 // returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
     //todo logic
@@ -181,16 +322,17 @@ async function getQuerySize(query, collectionName, options = {}) {
 
 async function updateDB(filter, update, collectionName) {
     //todo logic
-    try {
-        const client = await MongoClient.connect(url);
-        const db = client.db(dbName);
-        let collection = db.collection(collectionName);
-        let res = await collection.updateMany(filter, update);
-        client.close();
-        if (config.debug)
-            console.log(res.result.nModified + "Ok: " + res.result.ok)
-    } catch (e) {
-        console.log(e.message)
+
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(collectionName);
+    let res = await collection.updateMany(filter, update);
+    client.close();
+    if (config.debug)
+    {
+        console.log(collectionName + "updated!" + "by filter:" + filter + " and set exp: " + update)
+        console.log("ret: " + JSON.stringify(res))
+        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
     }
 
 
@@ -198,20 +340,20 @@ async function updateDB(filter, update, collectionName) {
 
 // save collection
 async function saveObjectToDb(objectTobeSaved, collectionName) {
+    let documents;
+    documents = objectTobeSaved;
+    let dataCollection = client.db(dbName).collection(collectionName);
+    await dataCollection.insertMany(documents, function (err, res) {
+        if (err) throw err;
+        if (config.debug) {
+            console.log("Items added to db collection :" + collectionName);
+        }
+    });
+}
+async function saveSingleObjectToDb(objectTobeSaved, collectionName) {
 
-    try {
-        let documents;
-        documents = objectTobeSaved;
-        let dataCollection = client.db(dbName).collection(collectionName);
-        await dataCollection.insertMany(documents, function (err, res) {
-            if (err) throw err;
-            if (config.debug) {
-                console.log("Items added to db collection :" + collectionName);
-            }
-        });
-    } catch (e) {
-        console.log(e.message)
-    }
-
+    let dataCollection = client.db(dbName).collection(collectionName);
+    let res =  await dataCollection.insertOne(objectTobeSaved);
+    return res;
 }
 

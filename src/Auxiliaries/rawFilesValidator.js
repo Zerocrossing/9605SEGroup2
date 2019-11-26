@@ -5,20 +5,79 @@ const fs = require('fs');
 var nodemailer = require('nodemailer');
 
 async function processRawFiles(){
-   // let query = "{"+"\"processingStatus\""+ ":"+ enums.processingStatus.unprocessed+"}"
-    let query = {"processingStatus": enums.processingStatus.unprocessed}
-    //console.log(query)
-    let localPaths = await db.getLocalPathFromDb(query)
-    let localPathsArr = Object.values(localPaths)
 
-    //console.log("localPathsArr.length: " + localPathsArr.length)
+    try {
 
-    localPathsArr.forEach(function (localPath) {
-       // console.log(localPath)
-        let retVal = validateRawFiles(localPath)
-        sendEmail(retVal.filesWithSmallNegative, retVal.filesWithLargeNegative)
+        let query = {"processingStatus": enums.processingStatus.unprocessed}
 
+        let localPaths = await db.getLocalPathFromDb(query)
+        if(typeof (localPaths) === 'undefined')
+        {
+            console.log("localpath undefined!")
+            return ;
+        }
+        let localPathsArr = Object.values(localPaths)
+
+        for(let i=0 ; i< localPathsArr.length ; i++) {
+            // console.log(localPath)
+            let filter = {$and: [{"path": localPathsArr[i].path}, {"processingStatus": enums.processingStatus.unprocessed}]}
+            let update = {$set: {"processingStatus": enums.processingStatus.inProgress}}
+
+            await db.updateLocalPathInDb(filter, update)
+
+            try {
+                let retVal = validateRawFiles(localPathsArr[i])
+
+                let fltr = {$and: [{"path": localPathsArr[i].path}, {"processingStatus": enums.processingStatus.inProgress}]}
+                let updt = {$set: {"processingStatus": enums.processingStatus.processed}}
+
+                await db.updateLocalPathInDb(fltr, updt)
+
+
+                if (retVal.filesWithLargeNegative.length > 0)
+                    await updateMetadata(localPathsArr[i], retVal.filesWithLargeNegative)
+                if (retVal.filesWithSmallNegative.length > 0 || retVal.filesWithLargeNegative.length > 0)
+                    sendEmail(retVal.filesWithSmallNegative, retVal.filesWithLargeNegative)
+
+            } catch (e) { //rollback!
+                let f = {$and: [{"path": localPathsArr[i].path}]}
+                let u = {$set: {"processingStatus": enums.processingStatus.unprocessed}}
+                console.log("Error happened during validation of rawfiles for path:" + localPathsArr[i].path)
+                await db.updateLocalPathInDb(f, u)
+                throw(e);
+            }
+
+        }
+      //  })
+    }
+    catch (e) {
+        console.log("error : "+e.message)
+    }
+
+
+}
+async function updateMetadata(localPath, filesWithLargeNegative) {
+
+    fwl = []
+    filesWithLargeNegative.forEach(function (elem) {
+        fwl.push(elem.substr(0,elem.length - config.rawFileExtension[0].length))
     })
+    //________update metadata with invalid rawfile
+    let filter = {$and:[{"refId":localPath._id},{FileName: { $in: fwl }} ] }
+    let update = {$set:{"validationStatus":enums.validationStatus.invalid}}
+
+    let ret =await db.updateMetadate(filter,update)
+
+//________update metadata with valid rawfile
+    let f = {$and:[{"refId":localPath._id},{FileName: { $nin: fwl }} ] }
+    let u = {$set:{"validationStatus":enums.validationStatus.valid}}
+
+    let retval =await db.updateMetadate(f,u)
+
+    let res  = await db.getMetadata(f)
+
+    console.log("I am here (1)"+ JSON.stringify(retval));
+
 
 }
 
@@ -26,13 +85,31 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
 
     let filesWithSmallNegative_Formatted = filesWithSmallNegative.join('\n');
     let filesWithLargeNegative_Formatted = filesWithLargeNegative.join('\n');
+    let attachment = []
 
-    fs.appendFile('Report_FilesWithSmallNegative.csv', filesWithSmallNegative_Formatted, function (err) {
+    if(filesWithSmallNegative.length>0)
+    {
+        fs.appendFile('Report_FilesWithSmallNegative.csv', filesWithSmallNegative_Formatted, function (err) {
         if (err) throw err;
     });
-    fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
+        attachment.push( {
+            filename: 'Report_FilesWithSmallNegative.csv',
+            path: './Report_FilesWithSmallNegative.csv'
+        })
+
+    }
+
+    if(filesWithLargeNegative.length>0)
+    {
+        fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
         if (err) throw err;
         });
+
+        attachment.push( {
+            filename: 'Report_FilesWithLargeNegative.csv',
+            path: './Report_FilesWithLargeNegative.csv'
+        })
+    }
 
     var transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -47,17 +124,7 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
         to: 'pasargad63@yahoo.com',
         subject: 'File Validation Report',
         text: 'Please see the attached files concerning your last submission on nature palette!',
-        attachments: [
-            {
-                filename: 'Report_FilesWithSmallNegative.csv',
-                path: './Report_FilesWithSmallNegative.csv'
-            },
-            {
-                filename: 'Report_FilesWithLargeNegative.csv',
-                path: './Report_FilesWithLargeNegative.csv'
-            }
-        ]
-
+        attachments: attachment
     };
 
     transporter.sendMail(mailOptions, function(error, info){
@@ -94,11 +161,6 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
 
 function validateRawFiles(pathRec){
 
-    let filter = {$and:[{"path":pathRec.path}, {"processingStatus": enums.processingStatus.unprocessed}] }
-    let update = {$set:{"processingStatus":enums.processingStatus.inProgress}}
-
-    db.updateLocalPathInDb(filter, update)
-
     let filesWithSmallNegative=[]
     let filesWithLargeNegative=[]
 
@@ -107,7 +169,7 @@ function validateRawFiles(pathRec){
     let fs = require('fs');
 
     let directoryPath = pathRec.path
-   // console.log(directoryPath)
+    // console.log(directoryPath)
     let getDirectories = fs.readdirSync(directoryPath)
         .map(file => path.join(directoryPath, file))
         .filter(path => fs.statSync(path).isDirectory());
@@ -117,19 +179,19 @@ function validateRawFiles(pathRec){
     let count = 0
     srchDir.push(directoryPath);
     srchDir = srchDir.concat(getDirectories)
-   // console.log(srchDir);
+    // console.log(srchDir);
     srchDir.forEach(function (dir) {
         fs.readdirSync(dir).forEach(function (file) {
 
             var fs = require('fs');
 
-        // todo replace rawFileExtensionLength
-            if (file.substr(file.length - config.rawFileExtensionLength) === config.rawFileExtension[0]) {
+            // todo replace rawFileExtensionLength
+            if (file.substr(file.length - config.rawFileExtension[0].length) === config.rawFileExtension[0]) {
                 count++
                 var buffer = fs.readFileSync(dir + "\\" + file);
 
                 let retVal = validateSingleFile(file, buffer.toString())
-              //  console.log(retVal)
+                // console.log(retVal)
                 if (retVal.hasSmallNegative)
                     filesWithSmallNegative.push(file)
                 if (retVal.hasLargeNegative)
@@ -138,14 +200,6 @@ function validateRawFiles(pathRec){
         });
     });
 
-    //console.log("filesWithSmallNegative" + filesWithSmallNegative);
-    //console.log("filesWithLargeNegative" + filesWithLargeNegative);
-    //console.log("count"+ count)
-
-    let fltr = {$and:[{"path":pathRec.path},{"processingStatus": enums.processingStatus.inProgress}]}
-    let updt = {$set:{"processingStatus":enums.processingStatus.processed}}
-
-    db.updateLocalPathInDb(fltr, updt)
 
     return {
         filesWithSmallNegative:filesWithSmallNegative,

@@ -4,9 +4,10 @@
   "db": {
     "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
     "dbName": "project",
-    "dataCollection": "dataTest",
+    "dataCollection": "dataTestRob",
     "userCollection": "userTest",
-    "LocalPathsOfRawFiles":"LocalPathsOfRawFiles"
+    "submission":"submission",
+    "userInfo": "userInfo"
   },
   "dataFilePath": "../data",
   "searchTerms": [
@@ -39,14 +40,9 @@
     "country",
     "Patch"
   ],
-  "tempUser": {
-    "userName": "Group2",
-    "pass": "",
-    "email": ""
-  },
   "schedulerInterval": 120000,
   "rawFileExtension": [
     ".Master.Transmission"
-  ],
-  "rawFileExtensionLength": 19
+  ]
+
 }
