@@ -292,7 +292,6 @@ module.exports.updateMetadate = function (filter, update) {
 }
 // returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
-    //todo logic
     try {
         const client = await MongoClient.connect(url);
         const db = client.db(dbName);
@@ -357,4 +356,10 @@ async function saveSingleObjectToDb(objectTobeSaved, collectionName) {
     let res =  await dataCollection.insertOne(objectTobeSaved);
     return res;
 }
+
+//when passed a username returns a list of all their submissions
+module.exports.getUserSubmissions = async function (userID) {
+    let query = {userRefId: userID};
+    return getResultsFromDB(query, submission);
+};
 

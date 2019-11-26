@@ -1,0 +1,30 @@
+extends layout
+
+block content
+    h1= title
+    p Please choose a submission to modify from the list below
+    div.modifyContent
+        form(action='/modify' method='post' id="modifyForm")
+            div.modifySubmissionList
+                each val in submissionDates
+                    div.modifySubmission
+                        input(type="radio" name="subID" value=val.id)
+                        |   #{val.dateStr}
+            div.modifyUploads
+                h2 Modified Files
+                table
+                    tr
+                        td
+                            label
+                                | MetaData File:
+                                span(style='color: red;') *
+                        td
+                            label
+                                | Raw Files:
+                                span(style='color: red;') *
+                    tr
+                        td
+                            input(type='file' name='meta' class="uploadButton")
+                        td
+                            input(type='file' name='raw' multiple)
+                input(type='submit' value='Modify' id="modifySubmit")

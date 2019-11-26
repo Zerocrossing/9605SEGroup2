@@ -18,6 +18,7 @@ const search = require('./routes/search');
 const upload = require('./routes/upload');
 const download = require('./routes/download');
 const login = require('./routes/login');
+const modify = require('./routes/modify');
 
 // load config
 const config = require('./config.json');
@@ -45,6 +46,7 @@ app.use('/upload', upload);
 app.use('/search', search);
 app.use('/download', download);
 app.use('/login', login);
+app.use('/modify', modify);
 
 // template downloads
 app.get('/templateDownload', function (req, res) {
