@@ -1,5 +1,6 @@
 const common = require('../Auxiliaries/common.js');
 const config = require('../config.json');
+var assert = require('assert');
 
 function validateSubmission(req) {
     let rawFiles = req.files.raw;
@@ -23,9 +24,9 @@ function validateSubmission(req) {
         }
     }
 
-    let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames);
+    let v1 = matchRawFilesAndMetadataFiles(rawFileNames, retVal.fileNames, retVal.json);
     let v2 = checkMandatoryFields(retVal.json, basicInfo);
-
+    // add extension to metadata file, only place they are together
     return {
         isValid: (v1.isValid && v2.isValid),
         json: retVal.json,
@@ -33,15 +34,22 @@ function validateSubmission(req) {
     };
 }
 
-function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
+
+function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames, metaFile) {
     rawFileNames.sort();
     metadataRawFileNames.sort();
+    assert(rawFileNames.length == metadataRawFileNames.length);
+    metaFile.sort(function (a, b) {
+        return a["FileName"].localeCompare(b["FileName"]);
+    });
     //remove valid extensions from all filenames
     for (let i = 0; i < rawFileNames.length; i++) {
-        rawFileNames[i] = removeKnownExtensions(rawFileNames[i])
+        splitFileName = removeKnownExtensions(rawFileNames[i]);
+        rawFileNames[i] = splitFileName.head;
+        metaFile[i].extension = splitFileName.tail;
     }
     for (let i = 0; i < metadataRawFileNames.length; i++) {
-        metadataRawFileNames[i] = removeKnownExtensions(metadataRawFileNames[i])
+        metadataRawFileNames[i] = removeKnownExtensions(metadataRawFileNames[i]).head;
     }
     let rawFileNamesStr = rawFileNames.toString();
     let metadataRawFileNamesStr = metadataRawFileNames.toString();
@@ -58,16 +66,18 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames) {
 }
 
 function removeKnownExtensions(fileName) {
+    let ret = {head: fileName, tail: ""};
     for (let j = 0; j < config.rawFileExtension.length; j++) {
         let extension = config.rawFileExtension[j];
         let exLen = extension.length;
         fileTail = fileName.slice(-exLen);
         if (fileTail === extension) {
-            return fileName.substring(0, fileName.length - exLen)
+            ret.head = fileName.substring(0, fileName.length - exLen);
+            ret.tail = fileName.slice(-exLen);
         }
     }
     //no match found
-    return fileName
+    return ret
 }
 
 function checkMandatoryFields(json, basicInfo) {

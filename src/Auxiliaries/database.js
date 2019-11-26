@@ -89,7 +89,7 @@ module.exports.saveData = function (metaObject, fileObject, userInfo) {
     //  saveObjectToDb(metaObject, dataCollectionName);
     appendData(metaObject, userInfo["userName"]);
 
-    let pathToSave = getLocalPath("userName")
+    let pathToSave = getLocalPath(userInfo["userName"]);
     saveFileToLocal(fileObject, pathToSave);
     saveDataToDb(metaObject, pathToSave, userInfo);
    // savePathToDb(pathToSave);
@@ -136,9 +136,9 @@ async function saveDataToDb(metaObject, pathToSave, userInfo) {
 }
 //adds extra data to the metadata file used by processing and other
 function appendData(metaObject, userName) {
-    let path = config.dataFilePath + "/" + userName + "/";
+    let path = getLocalPath(userName);
     for (elem of metaObject) {
-        elem.filePath = path + elem.FileName;
+        elem.filePath = path + "/" + elem.FileName;
     }
 }
 // saves the metadata to the database
@@ -256,7 +256,7 @@ module.exports.updateLocalPathInDb = function (filter, update) {
     return result;
 }
 
-module.exports.getLocalPathFromDb = function (query) {
+module.exports.getLocalPathFromDb = function (query, parse=true) {
     if (parse) {
         query = parseQuery(query);
     }
@@ -268,12 +268,13 @@ module.exports.getLocalPathFromDb = function (query) {
 module.exports.getPathsFromQuery = async function(query)
 {
     query = parseQuery(query);
-    let proj = {"filePath": 1};
+    let proj = {"filePath": 1, "extension" : 1};
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(dataCollectionName);
     // let result = await collection.find(query).project({}).toArray();
     let result = await collection.find(query).project(proj).toArray();
+    console.log(result);
     client.close();
     return result;
 };
