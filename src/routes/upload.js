@@ -4,6 +4,7 @@ var router = express.Router();
 var validator = require('../Auxiliaries/Validator')
 const db = require('../Auxiliaries/database')
 const common = require('../Auxiliaries/common.js');
+const modification = require('../Auxiliaries/modification.js');
 
 
 // Upload page render
@@ -21,14 +22,24 @@ router.post('/', function (req, res) {
         return res.status(400).send('No files were uploaded.');
     }
 
-    let validationStatus = validator.validateSubmission(req)
-    if (validationStatus.isValid) {
-        res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
-        db.saveData(validationStatus.json, req.files.raw, req.session.userInfo)
 
-    } else {
-        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
+    let actionType = "modification"
+    if(actionType == "upload")
+    {
+        let validationStatus = validator.validateSubmission(req)
+        if (validationStatus.isValid) {
+            res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
+            db.saveData(validationStatus.json, req.files.raw, req.session.userInfo, req.body.dataFrom)
+
+        } else {
+            res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
+        }
     }
+    else if(actionType == "modification"){//todo  record of submission should be received in req
+       let ret = modification.modifySubmission(req);
+        res.render('upload', {title: 'Nature\'s Palette', msg: ret.message});
+    }
+
 
 
 
