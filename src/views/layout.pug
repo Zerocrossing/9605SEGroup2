@@ -11,6 +11,10 @@ html
                     th #[a(class='navButton homeImg' href='/')]
                     th #[button(type='button' class='navButton' onclick='window.location.href="/search";') Search]
                     th #[button(type='button' class='navButton' onclick='window.location.href="/upload";') Upload]
-                    th #[button(type='button' class='navButton' onclick='window.location.href="/login";') Login]
+                    if !user
+                        th #[button(type='button' class='navButton' onclick='window.location.href="/login";') Login]
+                    else
+                        th #[button(type='button' class='navButton' onclick='window.location.href="/logout";') Logout]
+                        th #[p= user["userName"]]
         div.content
             block content

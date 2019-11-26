@@ -8,42 +8,42 @@ async function processRawFiles(){
 
     try {
 
-        let query = {"processingStatus": enums.processingStatus.unprocessed}
+        let query = { "processingStatus": enums.processingStatus.unprocessed };
 
-        let localPaths = await db.getLocalPathFromDb(query)
+        let localPaths = await db.getLocalPathFromDb(query, false);
         if(typeof (localPaths) === 'undefined')
         {
-            console.log("localpath undefined!")
-            return ;
+            console.log("localpath undefined!");
+            return;
         }
-        let localPathsArr = Object.values(localPaths)
+        let localPathsArr = Object.values(localPaths);
 
         for(let i=0 ; i< localPathsArr.length ; i++) {
             // console.log(localPath)
-            let filter = {$and: [{"path": localPathsArr[i].path}, {"processingStatus": enums.processingStatus.unprocessed}]}
-            let update = {$set: {"processingStatus": enums.processingStatus.inProgress}}
+            let filter = { $and: [{ "path": localPathsArr[i].path }, { "processingStatus": enums.processingStatus.unprocessed }] };
+            let update = { $set: { "processingStatus": enums.processingStatus.inProgress } };
 
-            await db.updateLocalPathInDb(filter, update)
+            await db.updateLocalPathInDb(filter, update);
 
             try {
-                let retVal = validateRawFiles(localPathsArr[i])
+                let retVal = validateRawFiles(localPathsArr[i]);
 
-                let fltr = {$and: [{"path": localPathsArr[i].path}, {"processingStatus": enums.processingStatus.inProgress}]}
-                let updt = {$set: {"processingStatus": enums.processingStatus.processed}}
+                let fltr = { $and: [{ "path": localPathsArr[i].path }, { "processingStatus": enums.processingStatus.inProgress }] };
+                let updt = { $set: { "processingStatus": enums.processingStatus.processed } };
 
-                await db.updateLocalPathInDb(fltr, updt)
+                await db.updateLocalPathInDb(fltr, updt);
 
 
                 if (retVal.filesWithLargeNegative.length > 0)
-                    await updateMetadata(localPathsArr[i], retVal.filesWithLargeNegative)
+                    await updateMetadata(localPathsArr[i], retVal.filesWithLargeNegative);
                 if (retVal.filesWithSmallNegative.length > 0 || retVal.filesWithLargeNegative.length > 0)
-                    sendEmail(retVal.filesWithSmallNegative, retVal.filesWithLargeNegative)
+                    sendEmail(retVal.filesWithSmallNegative, retVal.filesWithLargeNegative);
 
             } catch (e) { //rollback!
-                let f = {$and: [{"path": localPathsArr[i].path}]}
-                let u = {$set: {"processingStatus": enums.processingStatus.unprocessed}}
-                console.log("Error happened during validation of rawfiles for path:" + localPathsArr[i].path)
-                await db.updateLocalPathInDb(f, u)
+                let f = { $and: [{ "path": localPathsArr[i].path }] };
+                let u = { $set: { "processingStatus": enums.processingStatus.unprocessed } };
+                console.log("Error happened during validation of rawfiles for path:" + localPathsArr[i].path);
+                await db.updateLocalPathInDb(f, u);
                 throw(e);
             }
 
@@ -51,34 +51,32 @@ async function processRawFiles(){
       //  })
     }
     catch (e) {
-        console.log("error : "+e.message)
+        console.log("error : " + e.message);
     }
 
 
 }
 async function updateMetadata(localPath, filesWithLargeNegative) {
 
-    fwl = []
+    fwl = [];
     filesWithLargeNegative.forEach(function (elem) {
-        fwl.push(elem.substr(0,elem.length - config.rawFileExtension[0].length))
+        fwl.push(elem.substr(0, elem.length - config.rawFileExtension[0].length));
     })
     //________update metadata with invalid rawfile
-    let filter = {$and:[{"refId":localPath._id},{FileName: { $in: fwl }} ] }
-    let update = {$set:{"validationStatus":enums.validationStatus.invalid}}
+    let filter = { $and: [{ "refId": localPath._id }, { FileName: { $in: fwl } }] };
+    let update = { $set: { "validationStatus": enums.validationStatus.invalid } };
 
-    let ret =await db.updateMetadate(filter,update)
+    let ret = await db.updateMetadate(filter, update);
 
 //________update metadata with valid rawfile
-    let f = {$and:[{"refId":localPath._id},{FileName: { $nin: fwl }} ] }
-    let u = {$set:{"validationStatus":enums.validationStatus.valid}}
+    let f = { $and: [{ "refId": localPath._id }, { FileName: { $nin: fwl } }] };
+    let u = { $set: { "validationStatus": enums.validationStatus.valid } };
 
-    let retval =await db.updateMetadate(f,u)
+    let retval = await db.updateMetadate(f, u);
 
-    let res  = await db.getMetadata(f)
+    let res = await db.getMetadata(f);
 
     console.log("I am here (1)"+ JSON.stringify(retval));
-
-
 }
 
 function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
@@ -102,7 +100,7 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
     if(filesWithLargeNegative.length>0)
     {
         fs.appendFile('Report_FilesWithLargeNegative.csv', filesWithLargeNegative_Formatted, function (err) {
-        if (err) throw err;
+            if (err) throw err;
         });
 
         attachment.push( {

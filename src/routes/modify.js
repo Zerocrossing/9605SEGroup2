@@ -7,7 +7,7 @@ const common = require('../Auxiliaries/common.js');
 
 router.get('/', async function (req, res) {
     if (typeof (req.session.userInfo) === "undefined") {
-        res.redirect('/login');
+        res.redirect('/login' + '?redir=modify');
         return;
     }
     let usr = "Bob";
@@ -17,7 +17,8 @@ router.get('/', async function (req, res) {
         title: 'Nature\'s Palette',
         msg: '',
         userName: usr,
-        submissionDates: submissionDates
+        submissionDates: submissionDates,
+        user: req.session.userInfo
     });
 });
 
@@ -28,7 +29,8 @@ router.post('/', function (req, res) {
         res.render('generic', {
             title:"Nature's Pallette",
             header: "Upload Error",
-            message: "You did not include files in your submission."
+            message: "You did not include files in your submission.",
+            user: req.session.userInfo
         });
         return
     }
@@ -44,7 +46,8 @@ router.post('/', function (req, res) {
     res.render('generic', {
         title:"Nature's Pallette",
         header: "Files Uploaded Successfully!",
-        message: "Thank you for using Nature's Palette. The results will be validated and added to your submission shortly."
+        message: "Thank you for using Nature's Palette. The results will be validated and added to your submission shortly.",
+        user: req.session.userInfo
     });
 
 });
