@@ -11,6 +11,7 @@ router.get('/', function (req, res) {
         title: 'Nature\'s Palette',
         searchTerms: config.searchTerms,
         results: undefined,
+        user: req.session.userInfo
     });
 });
 
@@ -29,7 +30,8 @@ router.post('/', async function (req, res) {
             results: await results,
             count: await count,
             query: query,
-            qString: qString
+            qString: qString,
+            user: req.session.userInfo
         }
     )
 });

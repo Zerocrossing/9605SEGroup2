@@ -8,10 +8,12 @@ const common = require('../Auxiliaries/common.js');
 
 // Upload page render
 router.get('/', function (req, res) {
-    if(typeof (req.session.userInfo) === "undefined" )
+    if (typeof (req.session.userInfo) === "undefined") {
         res.redirect('/login');
-    else
-        res.render('upload', {title: 'Nature\'s Palette', msg: ''});
+    }
+    else {
+        res.render('upload', { title: 'Nature\'s Palette', msg: '', user: req.session.userInfo });
+    }
 });
 
 // Post request: uploaded files
@@ -23,15 +25,12 @@ router.post('/', function (req, res) {
 
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
-        res.render('upload', {title: 'Nature\'s Palette', msg: 'Files successfully uploaded!'});
+        res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!', user: req.session.userInfo });
         db.saveData(validationStatus.json, req.files.raw, req.session.userInfo)
 
     } else {
-        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message});
+        res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message, user: req.session.userInfo });
     }
-
-
-
 });
 
 module.exports = router;
