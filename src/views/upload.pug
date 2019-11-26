@@ -134,6 +134,34 @@ block content
                         input(type='submit' value='Upload' form='uploadForm')
     div(style='text-align: center;')
         pre.uploadMsg= msg
+    br
+    div(style='text-align: center;')
+        div(class='uploadTemplate')
+            p Template for 
+                b Reflectance 
+                | metadata.
+            a(href="/templateDownload?type=reflectanceF")
+                | Field
+            a(href="/templateDownload?type=reflectanceM")
+                | Museum
+        br
+        div(class='uploadTemplate')
+            p Template for 
+                b Transmittance 
+                | metadata.
+            a(href="/templateDownload?type=transmittanceF")
+                | Field
+            a(href="/templateDownload?type=transmittanceM")
+                | Museum
+        br
+        div(class='uploadTemplate')
+            p Template for 
+                b Irradiance 
+                | metadata.
+            a(href="/templateDownload?type=irradianceF")
+                | Field
+            a(href="/templateDownload?type=irradianceM")
+                | Museum
         
 
     script.

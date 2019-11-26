@@ -6,28 +6,32 @@ block content
     div.center
         div.login-page
             div.form
-                form.register-form
-                    input(type="text" placeholder="user name")
-                    input(type="text" placeholder="pasword")
-                    input(type="text" placeholder="email id")
+                form.register-form(id='RegisterForm' action='/login' method='post' encType='multipart/form-data')
+                    input(type="text" name="userName" placeholder="user name")
+                    input(type="text" name="password" placeholder="pasword")
+                    input(type="text" name="email" placeholder="email id")
 
-                    button
+                    button(name = "createButton")
                         | create
                     p.message
                         | Already Registered?
                         a(href="#")
                             | Login
 
-                form.login-form
-                    input(type="text" placeholder="username")
-                    input(type="text" placeholder="pasword")
-                    button
+                form.login-form(id='loginForm' action='/login' method='post' encType='multipart/form-data')
+                    input(type="text" name="userName" placeholder="username")
+                    input(type="text" name="password" placeholder="pasword")
+                    button(name = "LoginButton")
                         | login
                     p.message
                         | Not Registered?
                         a(href="#")
-                            | Registeredd
+                            | Register
+        if msg
+            div(style='text-align: center; color: red;')
+                pre(style='display: inline-block; background-color: #FFFFFFAA; border-radius: 8px; padding: 10px;')= msg
 
     script.
         $('.message a').click(function(){
         $('form').animate({height:"toggle", opacity: "toggle"}, "slow");});
+

@@ -7,9 +7,15 @@ var processingStatus = {
 var validationStatus = {
     unknown: 0,
     valid: 1,
-    //invalid files will be removed from database
+    invalid :2
 
 };
 
+var ActivationStatus = {
+    inactive: 0,
+    active: 1,
+    };
+
 exports.processingStatus = processingStatus;
 exports.validationStatus = validationStatus;
+exports.ActivationStatus = ActivationStatus;
