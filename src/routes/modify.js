@@ -60,12 +60,10 @@ function makeDateList(submissions) {
         let dateParsed = parseDate(pathArr[pathArr.length-1]);
         out.push({dateStr : dateParsed, id: submission["_id"]});
     }
-    console.log("Made date list: ", out);
     return out;
 }
 
 function parseDate(dateStr) {
-    console.log("Parse date parsing: ", dateStr);
     let out = "";
     let split = dateStr.split("T")
     out += split[0] + " ";
