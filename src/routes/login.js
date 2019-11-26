@@ -11,10 +11,7 @@ router.get('/', function (req, res) {
 });
 
 router.post('/',async function (req, res) {
-    console.log("login request query: ", req.query);
-    console.log("login request query.redir", req.query.redir);
     let redir = !req.query.redir? 'upload' : req.query.redir;
-    console.log("login post redir: ", redir);
     if(typeof (req.body.createButton) != "undefined")
     {
         let ret =await db.register(req.body.userName, req.body.password, req.body.email);
