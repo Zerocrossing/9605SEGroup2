@@ -14,7 +14,8 @@ html
                     if !user
                         th #[button(type='button' class='navButton' onclick='window.location.href="/login";') Login]
                     else
-                        th #[button(type='button' class='navButton' onclick='window.location.href="/logout";') Logout]
+                        th #[button(type='button' class='navButton' onclick='window.location.href="/modify";') Modify]
                         th #[p= user["userName"]]
+                        th #[button(type='button' class='navButton' onclick='window.location.href="/logout";') Logout]
         div.content
             block content
