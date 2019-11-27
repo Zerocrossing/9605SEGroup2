@@ -165,12 +165,13 @@ function validateRawFiles(pathRec){
 
     let path = require('path');
     let fs = require('fs');
-
+    // console.log("PathRec:", pathRec);
     let directoryPath = pathRec.path
-    // console.log(directoryPath)
+    // console.log("DirPath:", directoryPath);
     let getDirectories = fs.readdirSync(directoryPath)
         .map(file => path.join(directoryPath, file))
         .filter(path => fs.statSync(path).isDirectory());
+    // console.log("Get Directories: ", getDirectories)
 
 
     let srchDir = []
@@ -182,11 +183,11 @@ function validateRawFiles(pathRec){
         fs.readdirSync(dir).forEach(function (file) {
 
             var fs = require('fs');
-
+            // console.log("Validating file...", file);
             // todo replace rawFileExtensionLength
             if (file.substr(file.length - config.rawFileExtension[0].length) === config.rawFileExtension[0]) {
                 count++
-                var buffer = fs.readFileSync(dir + "\\" + file);
+                var buffer = fs.readFileSync(dir + "/" + file);
 
                 let retVal = validateSingleFile(file, buffer.toString())
                 // console.log(retVal)
