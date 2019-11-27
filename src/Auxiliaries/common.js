@@ -65,9 +65,7 @@ function moveFiles(pathOG, pathNew){
                 //move file
                 let oldPath = pathNew+"/"+items[i];
                 let newPath = pathOG + "/"+items[i];
-                fs.rename(oldPath,newPath, function(err){
-                    if (err) {console.log(err);}
-                });
+                fs.renameSync(oldPath,newPath);
             }
 
         }
