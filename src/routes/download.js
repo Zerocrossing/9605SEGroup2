@@ -40,7 +40,6 @@ async function makeCSV (query){
     let out = ""; //write all contents to string then convert it to buffer
     //get CSV headers from template files
     let csvHeaders = [];
-    let metaData = await db.getQueryResults(query);
     for (let templatePath of config.templateFiles){
         let headers = fs.readFileSync(templatePath).toString().split(',');
         for (let header of headers){
