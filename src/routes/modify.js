@@ -23,7 +23,7 @@ router.get('/', async function (req, res) {
 });
 
 // Post request: uploaded files
-router.post('/', function (req, res) {
+router.post('/', async function (req, res) {
     // error handling
     if (!req.files.raw || !req.files.meta){
         res.render('generic', {
@@ -38,7 +38,7 @@ router.post('/', function (req, res) {
         return res.status(400).send('You did not select an option');
     }
     //todo implement logic for parsing and modifying data
-    let submissionID = req.body.subID; //the submission ID for mongo
+    let submission = await db.getSubmissionFromID(req.body.subID);
     let metaFile = req.files.meta;
     let dataFiles = req.files.raw;
 

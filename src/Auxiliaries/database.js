@@ -1,5 +1,6 @@
 const assert = require('assert');
 const MongoClient = require('mongodb').MongoClient;
+const mongodb = require('mongodb');
 const config = require('../config.json');
 const enums = require('../Auxiliaries/enums.js');
 const url = config.db.url;
@@ -395,4 +396,13 @@ module.exports.deleteOne = async function (filter, collectionName) {
         // console.log("ret: " + JSON.stringify(res))
         console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
     }
+}
+
+module.exports.getSubmissionFromID = async function(id){
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(submission);
+    id = new mongodb.ObjectID(id);
+    let res = collection.find({"_id":id}).toArray();
+    return res;
 }
