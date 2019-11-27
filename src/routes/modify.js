@@ -27,7 +27,7 @@ router.get('/', async function (req, res) {
 // Post request: uploaded files
 router.post('/', async function (req, res) {
     // error handling
-    if (!req.files.raw || !req.files.meta){
+    if (!req.files || !req.files.raw || !req.files.meta){
         res.render('generic', {
             title:"Nature's Pallette",
             header: "Upload Error",
