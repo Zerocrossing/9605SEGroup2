@@ -233,7 +233,7 @@ function parseQuery(query) {
     for (var k in query) {
         val = query[k];
         // logical OR case
-        if (val.toLowerCase().includes("or")) {
+        if (typeof val == "string" && val.toLowerCase().includes("or")) {
             parsed.$or = [];
             val.toLowerCase().split("or").forEach(elem => {
                 let pElem = parseTerm(elem);
@@ -245,6 +245,10 @@ function parseQuery(query) {
         else if (config.searchTerms.includes(k) && val !== "") {
             parsed[k] = parseTerm(val);
         }
+    }
+    if (query.visibleOnly){
+        parsed.validationStatus={$ne:enums.validationStatus.unknown} //this is because most example data is out of bounds
+        //todo embargo check
     }
     return parsed;
 }
