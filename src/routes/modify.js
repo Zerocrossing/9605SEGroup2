@@ -4,6 +4,7 @@ var router = express.Router();
 var validator = require('../Auxiliaries/Validator');
 const db = require('../Auxiliaries/database');
 const common = require('../Auxiliaries/common.js');
+const modification = require('../Auxiliaries/modification.js');
 
 router.get('/', async function (req, res) {
     if (typeof (req.session.userInfo) === "undefined") {
@@ -12,6 +13,7 @@ router.get('/', async function (req, res) {
     }
     let usr = "Bob";
     let submissions = await db.getUserSubmissions(req.session.userInfo["_id"]);
+    console.log("@@@@submissions" + JSON.stringify(submissions))
     let submissionDates = makeDateList(submissions);
     res.render('modify', {
         title: 'Nature\'s Palette',
@@ -42,13 +44,21 @@ router.post('/', async function (req, res) {
     let metaFile = req.files.meta;
     let dataFiles = req.files.raw;
 
+    let retVal = await modification.modifySubmission(submission, metaFile, dataFiles, req.session);
+    console.log("**retVal**" + JSON.stringify(retVal))
+    if(!retVal.success)
+        res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error modifying the submission.\n' + retVal.message});
+    else
+        res.render('generic', {
+            title:"Nature's Pallette",
+            header: "Files Uploaded Successfully!",
+            message: "Thank you for using Nature's Palette. The results will be validated and added to your submission shortly.",
+            user: req.session.userInfo
+        });
+
+
     //if successful
-    res.render('generic', {
-        title:"Nature's Pallette",
-        header: "Files Uploaded Successfully!",
-        message: "Thank you for using Nature's Palette. The results will be validated and added to your submission shortly.",
-        user: req.session.userInfo
-    });
+
 
 });
 
@@ -59,6 +69,7 @@ router.post('/', async function (req, res) {
 function makeDateList(submissions) {
     let out = [];
     for (const submission of submissions) {
+        console.log(submission)
         let pathArr = submission.path.split("/");
         let dateParsed = parseDate(pathArr[pathArr.length-1]);
         out.push({dateStr : dateParsed, id: submission["_id"]});
