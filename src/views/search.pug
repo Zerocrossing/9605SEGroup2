@@ -19,6 +19,7 @@ block content
     .searchResults
         script
         if results !== undefined && (results.length > 0)
+            
             h3 Displaying  #{results.length} results out of #{count}:
             form(action="/download?" method='get')
                 button.download(type='submit' value=qString name='download') Download

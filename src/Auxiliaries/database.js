@@ -297,7 +297,7 @@ module.exports.getPathsFromQuery = async function (query) {
     let collection = db.collection(dataCollectionName);
     // let result = await collection.find(query).project({}).toArray();
     let result = await collection.find(query).project(proj).toArray();
-    console.log(result);
+    // console.log(result);
     client.close();
     return result;
 };
