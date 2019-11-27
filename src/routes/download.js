@@ -12,11 +12,13 @@ router.get('/', async function (req, res) {
     // get query (identical to search query) and find filepaths
     let query = querystring.decode(req.query.download);
     query.visibleOnly = true;
+    delete query["resultsPerPage"];
     let filesZip = new admzip();
     let filePaths = await db.getPathsFromQuery(query, filesZip);
     addFilesToZip(filePaths, filesZip);
     let uberZip = new admzip();
     let csv = await makeCSV(query);
+    console.log(query);
     let sendMe = await filesZip.toBuffer();
     uberZip.addFile("files.zip", sendMe);
     uberZip.addFile("metadata.csv",csv);

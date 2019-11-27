@@ -100,11 +100,22 @@ module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, su
     //appendData(metaObject, userInfo["userName"]);
 
     // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
-    let pathToSave = submission["path"]+"/Modified";
+    let pathToSave = submission["path"] + "/Modified";
     saveFileToLocal(fileObject, pathToSave);
     saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
     // savePathToDb(pathToSave);
 };
+
+// This assumes the metadata file is complete. Should only be called when modifying
+module.exports.insertCompleteRecords = function(metaData, collection){
+    try {
+        saveObjectToDb(metaData, collection);
+    }
+    catch (e) {
+        console.log(e.message)
+    }
+};
+
 
 // todo discuss
 function savePathToDb(pathToSave) {
@@ -181,7 +192,7 @@ function saveFileToLocal(fileObjects, pathToSave) {
     if (!fs.existsSync(pathToSave)) {
         fs.mkdirSync(pathToSave, {recursive: true});
         console.log("###pathToSave does not exist!")
-        fs.mkdirSync(pathToSave,{ recursive: true });
+        fs.mkdirSync(pathToSave, {recursive: true});
     }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
@@ -199,12 +210,15 @@ function saveFileToLocal(fileObjects, pathToSave) {
         console.log("Items stored on disk");
     }
 }
+module.exports.saveFileToLocal = saveFileToLocal;
 
 // takes in the raw post request and returns an array of data objects from the database
-module.exports.getQueryResults = function (query) {
-    let parsedQuery = parseQuery(query);
+module.exports.getQueryResults = function (query, parse = true) {
+    let parsedQuery = query;
+    if (parse) {
+        parsedQuery = parseQuery(query);
+    }
     let options = getOptions(query);
-
     results = getResultsFromDB(parsedQuery, dataCollectionName, options);
     return results;
 };
@@ -241,13 +255,12 @@ function parseQuery(query) {
                 q[k] = pElem;
                 parsed.$or.push(q);
             })
-        }
-        else if (config.searchTerms.includes(k) && val !== "") {
+        } else if (config.searchTerms.includes(k) && val !== "") {
             parsed[k] = parseTerm(val);
         }
     }
-    if (query.visibleOnly){
-        parsed.validationStatus={$ne:enums.validationStatus.unknown} //this is because most example data is out of bounds
+    if (query.visibleOnly) {
+        parsed.validationStatus = {$ne: enums.validationStatus.unknown} //this is because most example data is out of bounds
         //todo embargo check
     }
     return parsed;
@@ -399,18 +412,22 @@ module.exports.deleteMany = async function (filter, collectionName) {
     let collection = db.collection(collectionName);
     let res = await collection.deleteMany(filter);
     client.close();
-    if (config.debug)
-    {
+    if (config.debug) {
         // console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
+        console.log("No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
     }
 }
 
-module.exports.getSubmissionFromID = async function(id){
+module.exports.getSubmissionFromID = async function (id) {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(submission);
     id = new mongodb.ObjectID(id);
-    let res = collection.find({"_id":id}).toArray();
+    let res = collection.find({"_id": id}).toArray();
     return res;
 }
+module.exports.deleteLocalFile = function (path){
+  //todo
+  console.log("Delete local file was called on ", path ,"but is not yet implemented");
+};
+
