@@ -1,12 +1,12 @@
 {
   "port": 3332,
-  "debug": false,
+  "debug": true,
   "db": {
     "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
     "dbName": "project",
-    "dataCollection": "dataPresentation",
-    "userCollection": "userPresentation",
-    "submission":"submissionPresentation",
+    "dataCollection": "data",
+    "userCollection": "userInfo",
+    "submission":"submission",
     "userInfo": "userInfo"
   },
   "dataFilePath": "../data",

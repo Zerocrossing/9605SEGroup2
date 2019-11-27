@@ -2,6 +2,7 @@ const common = require('../Auxiliaries/common.js');
 const config = require('../config.json');
 const db = require('../Auxiliaries/database');
 var validator = require('../Auxiliaries/Validator')
+var enums = require('../Auxiliaries/enums')
 const dataCollectionName = config.db.dataCollection;
 
 module.exports.modifySubmission_v1 = function (req) {
@@ -101,6 +102,11 @@ module.exports.modifySubmission = async function (submission, metaFile, rawFiles
         let query = {$and:[{"filePath":"../data/userName/2019-10-25T20-28-14"},{FileName: { $in: filesToBeRemoved }} ] }
         await db.deleteMany(query, dataCollectionName)
         db.saveModifiedData(newMetadata, rawFiles, session.userInfo, submission)
+
+        let fltr = { "_id": submission._id };
+        let updt = { $set: { "processingStatus": enums.processingStatus.unprocessed } };
+
+        await db.updateLocalPathInDb(fltr, updt);
 
         return {
             "success":1,

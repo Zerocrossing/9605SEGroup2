@@ -100,9 +100,9 @@ module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, su
     //appendData(metaObject, userInfo["userName"]);
 
     // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
-    let pathToSave = submission["path"]+"/Modified";
+    let pathToSave = submission["path"]//+"/Modified";
     saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
+    saveModifiedDataToDb(metaObject, pathToSave, userInfo, submission)//submission["submitType"],);
     // savePathToDb(pathToSave);
 };
 
@@ -143,6 +143,28 @@ async function saveDataToDb(metaObject, pathToSave, userInfo, submitType) {
     let metaTobeSaved = []
     metaObject.forEach(function (elem) {
         elem["refId"] = res.ops[0]._id;
+        elem["validationStatus"] = enums.validationStatus.unknown
+        metaTobeSaved.push(elem);
+    })
+
+    saveObjectToDb(metaTobeSaved, dataCollectionName);
+}
+
+async function saveModifiedDataToDb(metaObject, pathToSave, userInfo, submit) {
+    let rec = {}
+
+   /* rec["path"] = pathToSave
+    rec["processingStatus"] = enums.processingStatus.unprocessed;
+    rec["userRefId"] = userInfo._id;
+    rec["submitType"] = submit["submitType"];*/
+
+
+   // let res = await saveSingleObjectToDb(rec, submission);
+   // console.log(JSON.stringify(res));
+
+    let metaTobeSaved = []
+    metaObject.forEach(function (elem) {
+        elem["refId"] = submit._id;
         elem["validationStatus"] = enums.validationStatus.unknown
         metaTobeSaved.push(elem);
     })
