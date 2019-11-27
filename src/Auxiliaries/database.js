@@ -85,15 +85,28 @@ module.exports.register = async  function (userName, password, email) {
         "massage" : ""
     }
 };
-module.exports.saveData = function (metaObject, fileObject, userInfo) {
+module.exports.saveData = function (metaObject, fileObject, userInfo, submitType) {
     //  saveObjectToDb(metaObject, dataCollectionName);
     appendData(metaObject, userInfo["userName"]);
 
     let pathToSave = getLocalPath(userInfo["userName"]);
     saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave, userInfo);
+    saveDataToDb(metaObject, pathToSave, userInfo, submitType);
     // savePathToDb(pathToSave);
 };
+
+module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, submission) {
+    //  saveObjectToDb(metaObject, dataCollectionName);
+
+    //appendData(metaObject, userInfo["userName"]);
+
+   // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
+    let pathToSave = submission["path"];
+    saveFileToLocal(fileObject, pathToSave);
+    saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
+    // savePathToDb(pathToSave);
+};
+
 // todo discuss
 function savePathToDb(pathToSave) {
     let rec = {}
@@ -115,12 +128,14 @@ function getLocalPath(userName)
     console.log(pathToSave)
     return pathToSave;
 }
-async function saveDataToDb(metaObject, pathToSave, userInfo) {
+async function saveDataToDb(metaObject, pathToSave, userInfo,submitType) {
     let rec = {}
 
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
     rec["userRefId"] = userInfo._id;
+    rec["submitType"]  = submitType;
+
 
     let res = await saveSingleObjectToDb(rec, submission);
     console.log(JSON.stringify(res));
@@ -363,3 +378,21 @@ module.exports.getUserSubmissions = async function (userID) {
     return getResultsFromDB(query, submission);
 };
 
+module.exports.getMeta = async function (query) {
+    //let query = {userRefId: userID};
+    return await getResultsFromDB(query, dataCollectionName);
+};
+
+module.exports.deleteOne = async function (filter, collectionName) {
+
+    const client = await MongoClient.connect(url);
+    const db = client.db(dbName);
+    let collection = db.collection(collectionName);
+    let res = await collection.deleteOne(filter);
+    client.close();
+    if (config.debug)
+    {
+        // console.log("ret: " + JSON.stringify(res))
+        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
+    }
+}

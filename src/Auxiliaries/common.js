@@ -30,10 +30,14 @@ function getZippedFileNames(zippedRawFiles){
     var zip = new admzip(zippedRawFiles.data);
     var zipEntries = zip.getEntries();
 
+    console.log("zipEntries:"+ zipEntries)
+    console.log("*******"+ JSON.stringify(zipEntries))
     zipEntries.forEach(function (zipEntry) {
-        rawfilenames.push(zipEntry.name);
+        if(zipEntry["isDirectory"] == false)
+            rawfilenames.push(zipEntry.name);
     });
 
+    console.log("**rawfilenames" + rawfilenames)
     return {
         rawFileNames: rawfilenames
     };

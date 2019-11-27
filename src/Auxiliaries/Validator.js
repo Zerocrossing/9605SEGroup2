@@ -38,7 +38,14 @@ function validateSubmission(req) {
 function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames, metaFile) {
     rawFileNames.sort();
     metadataRawFileNames.sort();
-    assert(rawFileNames.length == metadataRawFileNames.length);
+   // assert(rawFileNames.length == metadataRawFileNames.length);
+    console.log("MAtch : rawFileNames " + rawFileNames + "length:" + rawFileNames.length)
+    console.log("metadataRawFileNames " + metadataRawFileNames + "length:" + metadataRawFileNames.length)
+    if(rawFileNames.length != metadataRawFileNames.length)
+        return {
+            isValid: false,
+            message: "Raw Files don't match the metadata!"
+        }
     metaFile.sort(function (a, b) {
         return a["FileName"].localeCompare(b["FileName"]);
     });
@@ -105,6 +112,40 @@ function checkMandatoryFields(json, basicInfo) {
     }
 }
 
+function validateModificationSubmission(metadata, rawFiles,metaRawFilenames,submission) {
+   // let rawFiles = rawFiles;
+   // let metaFile = req.files.meta;
+  //  let basicInfo = req.body;
+
+    let rawFileNames = [];
+    let basicInfo = {"dataFrom" : submission["submitType"]}
+ //   let retVal = common.csvJSON(metaFile.data.toString());
+
+    if (typeof rawFiles.length === 'undefined') {
+        rawFiles = [rawFiles];
+    }
+
+    for (let i = 0; i < rawFiles.length; i++) {
+        let name = rawFiles[i].name;
+        if (name.substr(name.length - 3) === 'zip') {
+            let ret = common.getZippedFileNames(rawFiles[i])
+            console.log("ret ------" + ret.rawFileNames)
+            rawFileNames = rawFileNames.concat(ret.rawFileNames)
+        } else {
+            rawFileNames.push(name);
+        }
+    }
+
+    let v1 = matchRawFilesAndMetadataFiles(rawFileNames, metaRawFilenames, metadata);
+    let v2 = checkMandatoryFields(metadata, basicInfo);
+    // add extension to metadata file, only place they are together
+    return {
+        isValid: (v1.isValid && v2.isValid),
+       // json: retVal.json,
+        message: v1.message + '\n' + v2.message
+    };
+}
+
 function validateModificationSubmission(meta,raw, basicInfo, metaRawfileNames) {
   //  let rawFiles = req.files.raw;
   //  let metaFile = req.files.meta;
@@ -138,4 +179,4 @@ function validateModificationSubmission(meta,raw, basicInfo, metaRawfileNames) {
 }
 
 exports.validateSubmission = validateSubmission;
-exports.validateModificationSubmission = validateModificationSubmission
+exports.validateModificationSubmission = validateModificationSubmission;
