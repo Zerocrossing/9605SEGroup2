@@ -25,7 +25,7 @@ router.get('/', async function (req, res) {
 // Post request: uploaded files
 router.post('/', function (req, res) {
     // error handling
-    if (!req.body.raw || !req.body.meta){
+    if (!req.files.raw || !req.files.meta){
         res.render('generic', {
             title:"Nature's Pallette",
             header: "Upload Error",
@@ -39,8 +39,8 @@ router.post('/', function (req, res) {
     }
     //todo implement logic for parsing and modifying data
     let submissionID = req.body.subID; //the submission ID for mongo
-    let metaFile = req.body.meta;
-    let dataFiles = req.body.raw;
+    let metaFile = req.files.meta;
+    let dataFiles = req.files.raw;
 
     //if successful
     res.render('generic', {

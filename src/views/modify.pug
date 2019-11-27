@@ -4,7 +4,7 @@ block content
     h1= title
     p Please choose a submission to modify from the list below
     div.modifyContent
-        form(action='/modify' method='post' id="modifyForm")
+        form(action='/modify' method='post' id="modifyForm" encType='multipart/form-data')
             div.modifySubmissionList
                 each val in submissionDates
                     div.modifySubmission
