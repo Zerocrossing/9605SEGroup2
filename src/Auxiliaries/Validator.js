@@ -6,7 +6,6 @@ function validateSubmission(req) {
     let rawFiles = req.files.raw;
     let metaFile = req.files.meta;
     let basicInfo = req.body;
-
     let rawFileNames = [];
     let retVal = common.csvJSON(metaFile.data.toString());
 
@@ -39,8 +38,8 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames, metaF
     rawFileNames.sort();
     metadataRawFileNames.sort();
    // assert(rawFileNames.length == metadataRawFileNames.length);
-    console.log("MAtch : rawFileNames " + rawFileNames + "length:" + rawFileNames.length)
-    console.log("metadataRawFileNames " + metadataRawFileNames + "length:" + metadataRawFileNames.length)
+   //  console.log("MAtch : rawFileNames " + rawFileNames + "length:" + rawFileNames.length)
+   //  console.log("metadataRawFileNames " + metadataRawFileNames + "length:" + metadataRawFileNames.length)
     if(rawFileNames.length != metadataRawFileNames.length)
         return {
             isValid: false,

@@ -22,56 +22,53 @@ client.connect(function (err, db) {
 
 module.exports.verifyUser = async function (userName, password) {
 
-    let query =  {"userName": userName}
+    let query = {"userName": userName}
 
     let user = await getUserInfo(query)
     let usersArr = Object.values(user)
 
-    if(usersArr.length  == 0)
-    {
+    if (usersArr.length == 0) {
         return {
-            "success" : 0,
-            "massage" : "Username is not valid!"
+            "success": 0,
+            "massage": "Username is not valid!"
         }
     }
 
-    if(user[0]["password"]!= password)
-    {
+    if (user[0]["password"] != password) {
         return {
-            "success" : 0,
-            "massage" : "Password is not valid!"
+            "success": 0,
+            "massage": "Password is not valid!"
         }
     }
 
     let filter = {"userName": userName}
-    let update = {$set: {"active": enums.ActivationStatus.active, "lastLoginDate":new Date()}}
+    let update = {$set: {"active": enums.ActivationStatus.active, "lastLoginDate": new Date()}}
 
     await updateDB(filter, update, userInfo)
 
     return {
-        "success" : 1,
-        "massage" : "",
-        "user":user[0]
+        "success": 1,
+        "massage": "",
+        "user": user[0]
     }
 
 }
-module.exports.register = async  function (userName, password, email) {
+module.exports.register = async function (userName, password, email) {
 
-    let query =  { $or: [ {"userName": userName}, {"email": userName}] }
+    let query = {$or: [{"userName": userName}, {"email": userName}]}
 
-    let users =await getUserInfo(query)
+    let users = await getUserInfo(query)
     let usersArr = Object.values(users)
     console.log(usersArr)
-    if(usersArr.length > 0)
-    {
+    if (usersArr.length > 0) {
         return {
-            "success" : 0,
-            "massage" : "A user with the same username or email already registered in the system!"
+            "success": 0,
+            "massage": "A user with the same username or email already registered in the system!"
         }
     }
 
 
-    var rec={}
+    var rec = {}
     rec["userName"] = userName;
     rec["password"] = password;
     rec["email"] = email;
@@ -82,12 +79,13 @@ module.exports.register = async  function (userName, password, email) {
     let res = saveSingleObjectToDb(rec, userInfo);
 
     return {
-        "success" : 1,
-        "massage" : ""
+        "success": 1,
+        "massage": ""
     }
 };
 module.exports.saveData = function (metaObject, fileObject, userInfo, submitType) {
     //  saveObjectToDb(metaObject, dataCollectionName);
+    console.log(fileObject);
     appendData(metaObject, userInfo["userName"]);
 
     let pathToSave = getLocalPath(userInfo["userName"]);
@@ -101,7 +99,7 @@ module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, su
 
     //appendData(metaObject, userInfo["userName"]);
 
-   // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
+    // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
     let pathToSave = submission["path"];
     saveFileToLocal(fileObject, pathToSave);
     saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
@@ -119,23 +117,24 @@ function savePathToDb(pathToSave) {
     saveObjectToDb(recs, submission);
 
 }
-function getLocalPath(userName)
-{
+
+function getLocalPath(userName) {
     let currentDateTime = new Date();
-    let formattedCurrentDateTime = currentDateTime.getFullYear()+"-"+ currentDateTime.getMonth()+"-"+ currentDateTime.getDate()
-        +"T"+currentDateTime.getHours()+"-"+currentDateTime.getMinutes()+"-"+currentDateTime.getSeconds()
+    let formattedCurrentDateTime = currentDateTime.getFullYear() + "-" + currentDateTime.getMonth() + "-" + currentDateTime.getDate()
+        + "T" + currentDateTime.getHours() + "-" + currentDateTime.getMinutes() + "-" + currentDateTime.getSeconds()
     console.log(formattedCurrentDateTime)
-    let pathToSave = config.dataFilePath + "/" + /*config.tempUser.userName*/userName+"/" + formattedCurrentDateTime;
+    let pathToSave = config.dataFilePath + "/" + /*config.tempUser.userName*/userName + "/" + formattedCurrentDateTime;
     console.log(pathToSave)
     return pathToSave;
 }
-async function saveDataToDb(metaObject, pathToSave, userInfo,submitType) {
+
+async function saveDataToDb(metaObject, pathToSave, userInfo, submitType) {
     let rec = {}
 
     rec["path"] = pathToSave
     rec["processingStatus"] = enums.processingStatus.unprocessed;
     rec["userRefId"] = userInfo._id;
-    rec["submitType"]  = submitType;
+    rec["submitType"] = submitType;
 
 
     let res = await saveSingleObjectToDb(rec, submission);
@@ -150,6 +149,7 @@ async function saveDataToDb(metaObject, pathToSave, userInfo,submitType) {
 
     saveObjectToDb(metaTobeSaved, dataCollectionName);
 }
+
 //adds extra data to the metadata file used by processing and other
 function appendData(metaObject, userName) {
     let path = getLocalPath(userName);
@@ -157,6 +157,7 @@ function appendData(metaObject, userName) {
         elem.filePath = path + "/" + elem.FileName;
     }
 }
+
 // saves the metadata to the database
 /*function saveMetaToDatabase(metaObject) {
     let documents;
@@ -178,7 +179,7 @@ function saveFileToLocal(fileObjects, pathToSave) {
     }
 
     if (!fs.existsSync(pathToSave)) {
-        fs.mkdirSync(pathToSave,{ recursive: true });
+        fs.mkdirSync(pathToSave, {recursive: true});
     }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
@@ -230,7 +231,7 @@ function parseQuery(query) {
     for (var k in query) {
         val = query[k];
         // logical OR case
-        if (val.toLowerCase().includes("or")){
+        if (val.toLowerCase().includes("or")) {
             parsed.$or = [];
             val.toLowerCase().split("or").forEach(elem => {
                 let pElem = parseTerm(elem);
@@ -245,9 +246,10 @@ function parseQuery(query) {
     }
     return parsed;
 }
+
 //takes a string such as "Merops" and returns the value for a mongo query
 //todo regex this for case insensitivity
-function parseTerm(term){
+function parseTerm(term) {
     return term.trim();
 }
 
@@ -255,12 +257,12 @@ function parseTerm(term){
 function getOptions(query) {
     let options = {};
     options.limit = parseInt(query.resultsPerPage);
-    let limit = parseInt(query.page)*options.limit;
+    let limit = parseInt(query.page) * options.limit;
     options.skip = limit;
     return options;
 }
 
-function getUserInfo (query) {
+function getUserInfo(query) {
 
     let result = getResultsFromDB(query, userInfo);
     return result;
@@ -272,7 +274,7 @@ module.exports.updateLocalPathInDb = function (filter, update) {
     return result;
 }
 
-module.exports.getLocalPathFromDb = function (query, parse=true) {
+module.exports.getLocalPathFromDb = function (query, parse = true) {
     if (parse) {
         query = parseQuery(query);
     }
@@ -281,10 +283,9 @@ module.exports.getLocalPathFromDb = function (query, parse=true) {
 };
 
 //as above but assumes files store their own filePath attributes
-module.exports.getPathsFromQuery = async function(query)
-{
+module.exports.getPathsFromQuery = async function (query) {
     query = parseQuery(query);
-    let proj = {"filePath": 1, "extension" : 1};
+    let proj = {"filePath": 1, "extension": 1};
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(dataCollectionName);
@@ -306,6 +307,7 @@ module.exports.updateMetadate = function (filter, update) {
     let result = updateDB(filter, update, dataCollectionName);
     return result;
 }
+
 // returns the results of a query, with the optional mongo options param
 async function getResultsFromDB(query, collectionName, options = {}) {
     try {
@@ -344,11 +346,10 @@ async function updateDB(filter, update, collectionName) {
     let collection = db.collection(collectionName);
     let res = await collection.updateMany(filter, update);
     client.close();
-    if (config.debug)
-    {
+    if (config.debug) {
         console.log(collectionName + "updated!" + "by filter:" + filter + " and set exp: " + update)
         console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
+        console.log("No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
     }
 
 
@@ -366,10 +367,11 @@ async function saveObjectToDb(objectTobeSaved, collectionName) {
         }
     });
 }
+
 async function saveSingleObjectToDb(objectTobeSaved, collectionName) {
 
     let dataCollection = client.db(dbName).collection(collectionName);
-    let res =  await dataCollection.insertOne(objectTobeSaved);
+    let res = await dataCollection.insertOne(objectTobeSaved);
     return res;
 }
 
@@ -391,18 +393,17 @@ module.exports.deleteOne = async function (filter, collectionName) {
     let collection = db.collection(collectionName);
     let res = await collection.deleteOne(filter);
     client.close();
-    if (config.debug)
-    {
+    if (config.debug) {
         // console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
+        console.log("No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
     }
 }
 
-module.exports.getSubmissionFromID = async function(id){
+module.exports.getSubmissionFromID = async function (id) {
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(submission);
     id = new mongodb.ObjectID(id);
-    let res = collection.find({"_id":id}).toArray();
+    let res = collection.find({"_id": id}).toArray();
     return res;
 }

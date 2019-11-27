@@ -58,6 +58,7 @@ router.post('/', async function (req, res) {
 //id is the reference ID of the submission in the database
 function makeDateList(submissions) {
     let out = [];
+    console.log(submissions);
     for (const submission of submissions) {
         let pathArr = submission.path.split("/");
         let dateParsed = parseDate(pathArr[pathArr.length-1]);

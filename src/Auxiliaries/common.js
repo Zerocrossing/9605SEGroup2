@@ -30,14 +30,11 @@ function getZippedFileNames(zippedRawFiles){
     var zip = new admzip(zippedRawFiles.data);
     var zipEntries = zip.getEntries();
 
-    console.log("zipEntries:"+ zipEntries)
-    console.log("*******"+ JSON.stringify(zipEntries))
     zipEntries.forEach(function (zipEntry) {
         if(zipEntry["isDirectory"] == false)
             rawfilenames.push(zipEntry.name);
     });
 
-    console.log("**rawfilenames" + rawfilenames)
     return {
         rawFileNames: rawfilenames
     };
@@ -45,7 +42,35 @@ function getZippedFileNames(zippedRawFiles){
 
 function extractZippedFile(zippedRawFiles, path){
     var zip = new admzip(zippedRawFiles.data);
-    zip.extractAllTo(path,true)
+    zip.extractAllTo(path,true);
+    moveFiles(path,path);
+    let items = fs.readdirSync(path)
+    for (var i=0; i<items.length; i++) {
+        let filePath = path + "/" + items[i];
+        let isDir = fs.statSync(filePath).isDirectory();
+        if (isDir) {
+            fs.rmdirSync(filePath, {recursive:true});
+        }
+    }
+}
+
+function moveFiles(pathOG, pathNew){
+    items = fs.readdirSync(pathNew);
+        for (var i=0; i<items.length; i++) {
+            let isDir = fs.statSync(pathNew+"/"+items[i]).isDirectory();
+            if (isDir){
+                moveFiles(pathOG, pathNew+"/"+items[i]);
+            }
+            else{
+                //move file
+                let oldPath = pathNew+"/"+items[i];
+                let newPath = pathOG + "/"+items[i];
+                fs.rename(oldPath,newPath, function(err){
+                    if (err) {console.log(err);}
+                });
+            }
+
+        }
 }
 
 exports.csvJSON = csvJSON;
