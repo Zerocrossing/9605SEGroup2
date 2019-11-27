@@ -2,6 +2,7 @@ const common = require('../Auxiliaries/common.js');
 const config = require('../config.json');
 const db = require('../Auxiliaries/database');
 var validator = require('../Auxiliaries/Validator')
+const dataCollectionName = config.db.dataCollection;
 
 module.exports.modifySubmission_v1 = function (req) {
 
@@ -29,15 +30,15 @@ module.exports.modifySubmission_v1 = function (req) {
 
 }
 
-module.exports.modifySubmission = async function (req) {
+module.exports.modifySubmission = async function (submission, metaFile, rawFiles, session) {
+
+    console.log("submission" + submission)
+    console.log("metaFile" + metaFile)
+    console.log("rawFiles" + rawFiles)
+    console.log("session" + session)
 
 
-    let rawFiles = req.files.raw;
-    let metaFile = req.files.meta;
-
-
-    //todo replace submission with req.submission
-    let submission = {"_id": "5ddc6a99ace6131b48225616", "path":"../data/userName/2019-10-25T20-28-14", "submitType":'museum'}
+  //  let submission = {"_id": "5ddc6a99ace6131b48225616", "path":"../data/userName/2019-10-25T20-28-14", "submitType":'museum'}
     //------------------
     let ret = common.csvJSON(metaFile.data.toString());
     let metaJson = ret.json;
@@ -58,6 +59,7 @@ module.exports.modifySubmission = async function (req) {
         }
 
     console.log("Pass preValidation")
+    let filesToBeRemoved =[]
 
     //*****basicInfo.dataFrom
     metaJson.forEach(function (metaItem) {
@@ -71,9 +73,10 @@ module.exports.modifySubmission = async function (req) {
 
             newMetadata.push(normalMetaItem);//if it is new = old remove filename from ret.rawfilename
         }
-       /* if(metaItem["NewFileName"] == metaItem["FileName"] )// todo use lowercase comparision
+       /* if( (metaItem["NewFileName"].length==0 && metaItem["FileName"].length>0) ||
+            (metaItem["NewFileName"].length>0 && metaItem["FileName"].length>0))
         {
-            metaRawFilenames = metaRawFilenames.filter(v => v !== metaItem["FileName"]);//todo use lowercase comparision
+            filesToBeRemoved.push(metaItem["FileName"])
         }*/
     })
 
@@ -95,7 +98,15 @@ module.exports.modifySubmission = async function (req) {
             }
 
         //todo delete replace recs
-        db.saveModifiedData(newMetadata, req.files.raw, req.session.userInfo, submission)
+        let query = {$and:[{"filePath":"../data/userName/2019-10-25T20-28-14"},{FileName: { $in: filesToBeRemoved }} ] }
+        await db.deleteMany(query, dataCollectionName)
+        db.saveModifiedData(newMetadata, rawFiles, session.userInfo, submission)
+
+        return {
+            "success":1,
+            message : "Modification succeeded!"
+        }
+
     }
 }
 

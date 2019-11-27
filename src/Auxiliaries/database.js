@@ -100,7 +100,7 @@ module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, su
     //appendData(metaObject, userInfo["userName"]);
 
     // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
-    let pathToSave = submission["path"];
+    let pathToSave = submission["path"]+"/Modified";
     saveFileToLocal(fileObject, pathToSave);
     saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
     // savePathToDb(pathToSave);
@@ -177,9 +177,11 @@ function saveFileToLocal(fileObjects, pathToSave) {
     if (typeof fileObjects.length === 'undefined') {
         fileObjects = [fileObjects];
     }
-
+    console.log("###pathToSave: " + pathToSave)
     if (!fs.existsSync(pathToSave)) {
         fs.mkdirSync(pathToSave, {recursive: true});
+        console.log("###pathToSave does not exist!")
+        fs.mkdirSync(pathToSave,{ recursive: true });
     }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");
@@ -386,24 +388,25 @@ module.exports.getMeta = async function (query) {
     return await getResultsFromDB(query, dataCollectionName);
 };
 
-module.exports.deleteOne = async function (filter, collectionName) {
+module.exports.deleteMany = async function (filter, collectionName) {
 
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(collectionName);
-    let res = await collection.deleteOne(filter);
+    let res = await collection.deleteMany(filter);
     client.close();
-    if (config.debug) {
+    if (config.debug)
+    {
         // console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
+        console.log("No. of modified recs: "+res.result.nModified + " ,Ok: " + res.result.ok)
     }
 }
 
-module.exports.getSubmissionFromID = async function (id) {
+module.exports.getSubmissionFromID = async function(id){
     const client = await MongoClient.connect(url);
     const db = client.db(dbName);
     let collection = db.collection(submission);
     id = new mongodb.ObjectID(id);
-    let res = collection.find({"_id": id}).toArray();
+    let res = collection.find({"_id":id}).toArray();
     return res;
 }

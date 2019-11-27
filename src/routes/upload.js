@@ -1,9 +1,10 @@
-﻿'use strict';
+'use strict';
 var express = require('express');
 var router = express.Router();
 var validator = require('../Auxiliaries/Validator')
 const db = require('../Auxiliaries/database')
 const common = require('../Auxiliaries/common.js');
+const modification = require('../Auxiliaries/modification.js');
 
 
 // Upload page render
@@ -22,6 +23,7 @@ router.post('/', function (req, res) {
     if (!req.files || !req.files.meta || !req.files.raw || Object.keys(req.files.meta).length === 0 || Object.keys(req.files.raw).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
+
 
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
