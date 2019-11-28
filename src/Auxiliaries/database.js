@@ -97,7 +97,7 @@ module.exports.saveData = function (metaObject, fileObject, userInfo, submitType
 module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, submission) {
     //  saveObjectToDb(metaObject, dataCollectionName);
 
-    appendData(metaObject, userInfo["userName"]);
+    appendData(metaObject, userInfo["userName"], submission);
 
     // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
     let pathToSave = submission["path"];
@@ -174,8 +174,14 @@ async function saveDataToDb(metaObject, pathToSave, userInfo, submitType) {
 }
 
 //adds extra data to the metadata file used by processing and other
-function appendData(metaObject, userName) {
-    let path = getLocalPath(userName);
+function appendData(metaObject, userName, submission=null) {
+    let path;
+    if (submission != null){
+        path = submission.path;
+    }
+    else {
+        path = getLocalPath(userName);
+    }
     for (elem of metaObject) {
         elem.filePath = path + "/" + elem.FileName;
     }

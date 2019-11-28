@@ -13,7 +13,7 @@ router.get('/', function (req, res) {
         res.redirect('/login');
     }
     else {
-        res.render('upload', { title: 'Nature\'s Palette', msg: '', user: req.session.userInfo });
+        res.render('upload', {title: 'Nature\'s Palette', msg: '', user: req.session.userInfo});
     }
 });
 
@@ -21,7 +21,12 @@ router.get('/', function (req, res) {
 router.post('/', function (req, res) {
     // null file check
     if (!req.files || !req.files.meta || !req.files.raw || Object.keys(req.files.meta).length === 0 || Object.keys(req.files.raw).length === 0) {
-        return res.status(400).send('No files were uploaded.');
+        res.render('upload', {
+            title: 'Nature\'s Palette',
+            msg: 'Error: Please provide files with your submission.',
+            user: req.session.userInfo
+        });
+        return;
     }
 
 
@@ -29,14 +34,27 @@ router.post('/', function (req, res) {
     if (validationStatus.isValid) {
         // todo: validate and authenticate user's session
         if (req.session.userInfo) {
-            res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!', user: req.session.userInfo });
+            res.render('upload', {
+                title: 'Nature\'s Palette',
+                msg: 'Files successfully uploaded!',
+                user: req.session.userInfo
+            });
             db.saveData(validationStatus.json, req.files.raw, req.session.userInfo);
         }
         else {
-            res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\nPlease Login to be able to upload.', user: req.session.userInfo })
+            res.render('upload', {
+                title: 'Nature\'s Palette',
+                msg: 'There was an error uploading the files.\nPlease Login to be able to upload.',
+                user: req.session.userInfo
+            })
+
         }
     } else {
-        res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message, user: req.session.userInfo });
+        res.render('upload', {
+            title: 'Nature\'s Palette',
+            msg: 'There was an error uploading the files.\n' + validationStatus.message,
+            user: req.session.userInfo
+        });
     }
 });
 

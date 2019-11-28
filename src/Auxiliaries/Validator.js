@@ -140,38 +140,38 @@ function validateModificationSubmission(metadata, rawFiles,metaRawFilenames,subm
         message: v1.message + '\n' + v2.message
     };
 }
-
-function validateModificationSubmission(meta,raw, basicInfo, metaRawfileNames) {
-  //  let rawFiles = req.files.raw;
-  //  let metaFile = req.files.meta;
-  //  let basicInfo = req.body;
-
-    let rawFileNames = [];
-  //  let retVal = common.csvJSON(metaFile.data.toString());
-
-    if (typeof raw.length === 'undefined'){
-        raw = [raw];
-    }
-
-    for (let i = 0; i < raw.length; i++) {
-        let name = raw[i].name;
-        if (name.substr(name.length - 3) === 'zip') {
-            let ret = common.getZippedFileNames(raw[i])
-            rawFileNames = rawFileNames.concat(ret.rawFileNames)
-        } else {
-            rawFileNames.push(name);
-        }
-    }
-
-    let v1 = matchRawFilesAndMetadataFiles(rawFileNames, metaRawfileNames);
-    let v2 = checkMandatoryFields(meta, basicInfo);
-
-    return {
-        isValid: (v1.isValid && v2.isValid),
-        //json: retVal.json,
-        message: v1.message + '\n' + v2.message
-    };
-}
+//
+// function validateModificationSubmission(meta,raw, basicInfo, metaRawfileNames) {
+//   //  let rawFiles = req.files.raw;
+//   //  let metaFile = req.files.meta;
+//   //  let basicInfo = req.body;
+//
+//     let rawFileNames = [];
+//   //  let retVal = common.csvJSON(metaFile.data.toString());
+//
+//     if (typeof raw.length === 'undefined'){
+//         raw = [raw];
+//     }
+//
+//     for (let i = 0; i < raw.length; i++) {
+//         let name = raw[i].name;
+//         if (name.substr(name.length - 3) === 'zip') {
+//             let ret = common.getZippedFileNames(raw[i])
+//             rawFileNames = rawFileNames.concat(ret.rawFileNames)
+//         } else {
+//             rawFileNames.push(name);
+//         }
+//     }
+//
+//     let v1 = matchRawFilesAndMetadataFiles(rawFileNames, metaRawfileNames);
+//     let v2 = checkMandatoryFields(meta, basicInfo);
+//
+//     return {
+//         isValid: (v1.isValid && v2.isValid),
+//         //json: retVal.json,
+//         message: v1.message + '\n' + v2.message
+//     };
+// }
 
 function findMissingFiles(rawFileNames, metadataRawFileNames) {
     let errMessage = "";

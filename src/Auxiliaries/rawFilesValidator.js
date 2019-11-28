@@ -119,7 +119,7 @@ function sendEmail(filesWithSmallNegative,filesWithLargeNegative) {
     });
 
     var mailOptions = {
-        from: 'g2sogtware2019@gmail.com',
+        from: 'g2software2019@gmail.com',
         to: 'pasargad63@yahoo.com',
         subject: 'File Validation Report',
         text: 'Please see the attached files concerning your last submission on nature palette!',

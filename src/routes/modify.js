@@ -37,7 +37,13 @@ router.post('/', async function (req, res) {
         return
     }
     if (!req.body.subID) {
-        return res.status(400).send('You did not select an option');
+        res.render('generic', {
+            title:"Nature's Palette",
+            header: "Modification error",
+            message: "You need to select a submission to modify.",
+            user: req.session.userInfo
+        });
+        return;
     }
     //todo implement logic for parsing and modifying data
     let submission = await db.getSubmissionFromID(req.body.subID);
