@@ -116,6 +116,8 @@ async function preValidation(metadata, submission){
     let newFileNameArr = []
     let oldFileNameArr = []
 
+    let newFileNameArrTocheckInDb = []
+
     for(let i=0; i<metadata.length;i++){
         if(newFileNameArr.includes(metadata[i]["NewFileName"]))
         {
@@ -137,13 +139,16 @@ async function preValidation(metadata, submission){
             newFileNameArr.push(metadata[i]["NewFileName"])
         if(metadata[i]["FileName"].length > 0 )
             oldFileNameArr.push(metadata[i]["FileName"])
+        if((metadata[i]["NewFileName"].length > 0 ) && (metadata[i]["NewFileName"] !== metadata[i]["FileName"] ))
+            newFileNameArrTocheckInDb.push(metadata[i]["NewFileName"])
+
     }
 
-    if(newFileNameArr.length>0){
-        let query = {$and:[{"refId":submission._id},{FileName: { $in: newFileNameArr }} ] }
+    if(newFileNameArrTocheckInDb.length>0){
+        let query = {$and:[{"refId":submission._id},{FileName: { $in: newFileNameArrTocheckInDb }} ] }
         let res  = await db.getMeta(query)
-        console.log("newFileNameArr res : " + JSON.stringify(res))
-        console.log("new file: " + newFileNameArr)
+        console.log("newFileNameArrTocheckInDb res : " + JSON.stringify(res))
+        console.log("new file: " + newFileNameArrTocheckInDb)
         if(res.length >0 )
             return {
                 success:0,
