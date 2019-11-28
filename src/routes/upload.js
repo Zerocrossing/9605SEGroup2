@@ -27,9 +27,14 @@ router.post('/', function (req, res) {
 
     let validationStatus = validator.validateSubmission(req)
     if (validationStatus.isValid) {
-        res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!', user: req.session.userInfo });
-        db.saveData(validationStatus.json, req.files.raw, req.session.userInfo)
-
+        // todo: validate and authenticate user's session
+        if (req.session.userInfo) {
+            res.render('upload', { title: 'Nature\'s Palette', msg: 'Files successfully uploaded!', user: req.session.userInfo });
+            db.saveData(validationStatus.json, req.files.raw, req.session.userInfo);
+        }
+        else {
+            res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\nPlease Login to be able to upload.', user: req.session.userInfo })
+        }
     } else {
         res.render('upload', { title: 'Nature\'s Palette', msg: 'There was an error uploading the files.\n' + validationStatus.message, user: req.session.userInfo });
     }

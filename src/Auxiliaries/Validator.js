@@ -40,11 +40,12 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames, metaF
    // assert(rawFileNames.length == metadataRawFileNames.length);
    //  console.log("MAtch : rawFileNames " + rawFileNames + "length:" + rawFileNames.length)
    //  console.log("metadataRawFileNames " + metadataRawFileNames + "length:" + metadataRawFileNames.length)
-    if(rawFileNames.length != metadataRawFileNames.length)
+    if (rawFileNames.length != metadataRawFileNames.length) {
         return {
             isValid: false,
-            message: "Raw Files don't match the metadata!"
+            message: "Raw Files don't match the metadata!\n" + findMissingFiles(rawFileNames, metadataRawFileNames)
         }
+    }
     metaFile.sort(function (a, b) {
         return a["FileName"].localeCompare(b["FileName"]);
     });
@@ -62,7 +63,7 @@ function matchRawFilesAndMetadataFiles(rawFileNames, metadataRawFileNames, metaF
     if (rawFileNamesStr.toLowerCase().localeCompare(metadataRawFileNamesStr.toLowerCase()) != 0) {
         return {
             isValid: false,
-            message: "Raw Files don't match the metadata!"
+            message: "Raw Files don't match the metadata!\n" + findMissingFiles(rawFileNames, metadataRawFileNames)
         }
     }
     return {
@@ -96,11 +97,11 @@ function checkMandatoryFields(json, basicInfo) {
         mandatoryFields = mandatoryFields.concat(['UniqueID']);
     }
 
-    json.forEach(function (item, index) {
+    json.forEach(function(item, index) {
         mandatoryFields.forEach(function (item1, index1) {
             if (typeof (item[item1]) === 'undefined' || item[item1] === '') {
                 isValid = false;
-                emptyMandatoryFields += 'Row ' + (index + 1) + ': Attribute: ' + item1 + ', value: ' + item[item1] + ', FileName: ' + item['FileName'] + "\n";
+                emptyMandatoryFields += 'Row ' + (index + 2) + ': Attribute: ' + item1 + ', value: ' + item[item1] + ', FileName: ' + item['FileName'] + "\n";
             }
         });
     });
@@ -170,6 +171,35 @@ function validateModificationSubmission(meta,raw, basicInfo, metaRawfileNames) {
         //json: retVal.json,
         message: v1.message + '\n' + v2.message
     };
+}
+
+function findMissingFiles(rawFileNames, metadataRawFileNames) {
+    let errMessage = "";
+    for (let name1 of rawFileNames) {
+        let found = false;
+        for (let name2 of metadataRawFileNames) {
+            if (name1 === name2) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            errMessage += name1 + " is not in metadata!\n";
+        }
+    }
+    for (let name1 of metadataRawFileNames) {
+        let found = false;
+        for (let name2 of rawFileNames) {
+            if (name1 === name2) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            errMessage += name1 + " is not a raw file!\n";
+        }
+    }
+    return errMessage;
 }
 
 exports.validateSubmission = validateSubmission;
