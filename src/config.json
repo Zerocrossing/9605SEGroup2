@@ -4,9 +4,9 @@
   "db": {
     "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
     "dbName": "project",
-    "dataCollection": "data",
+    "dataCollection": "dataPresentation",
     "userCollection": "userInfo",
-    "submission":"submission",
+    "submission":"submissionPresentation",
     "userInfo": "userInfo"
   },
   "dataFilePath": "../data",

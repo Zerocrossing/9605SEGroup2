@@ -1,5 +1,5 @@
 Embargo:
-    Data that is uploaded and exists on the server but can't be searched for until
+    Data that is uploaded and exists on the server but can't be searched for until a certain date has passed.
     
     
 Reflectance, Transmittance, Irradiance:
