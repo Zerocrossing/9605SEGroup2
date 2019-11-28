@@ -3,11 +3,12 @@
     font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
     background-color: black;
     color: white;
-    background-image: url(../img/bg.png);
     height: 100%;
+    background-image: url(../img/bg.png);
     background-size: cover;
-    background-position: 50% 60px;
+    background-position: 50% 20px;
     background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 a {
