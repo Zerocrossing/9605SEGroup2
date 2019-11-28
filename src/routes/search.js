@@ -18,6 +18,7 @@ router.get('/', function (req, res) {
 // Post request: responds to search query
 router.post('/', async function (req, res) {
     let query = req.body;
+    query.visibleOnly = true;
     let count = db.getQuerySize(query);
     let results = db.getQueryResults(query);
     // todo: form sends all fields, even if blank, so remove them for clarity

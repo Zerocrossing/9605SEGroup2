@@ -13,7 +13,7 @@ router.get('/', async function (req, res) {
     }
     let usr = "Bob";
     let submissions = await db.getUserSubmissions(req.session.userInfo["_id"]);
-    console.log("@@@@submissions" + JSON.stringify(submissions))
+    // console.log("@@@@submissions" + JSON.stringify(submissions))
     let submissionDates = makeDateList(submissions);
     res.render('modify', {
         title: 'Nature\'s Palette',
@@ -45,7 +45,7 @@ router.post('/', async function (req, res) {
     let dataFiles = req.files.raw;
 
     let retVal = await modification.modifySubmission(submission, metaFile, dataFiles, req.session);
-    console.log("**retVal**" + JSON.stringify(retVal))
+    // console.log("**retVal**" + JSON.stringify(retVal))
     if(!retVal.success)
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error modifying the submission.\n' + retVal.message, user: req.session.userInfo});
     else
@@ -68,9 +68,9 @@ router.post('/', async function (req, res) {
 //id is the reference ID of the submission in the database
 function makeDateList(submissions) {
     let out = [];
-    console.log(submissions);
+    // console.log(submissions);
     for (const submission of submissions) {
-        console.log(submission)
+        // console.log(submission)
         let pathArr = submission.path.split("/");
         let dateParsed = parseDate(pathArr[pathArr.length-1]);
         out.push({dateStr : dateParsed, id: submission["_id"]});

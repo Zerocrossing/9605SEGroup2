@@ -43,6 +43,6 @@
   "schedulerInterval": 120000,
   "rawFileExtension": [
     ".Master.Transmission"
-  ]
-
+  ],
+  "templateFiles": ["./public/templates/reflectanceF.csv", "./public/templates/reflectanceM.csv"]
 }
