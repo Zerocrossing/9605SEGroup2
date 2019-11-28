@@ -425,8 +425,8 @@ module.exports.deleteMany = async function (filter, collectionName) {
     let res = await collection.deleteMany(filter);
     client.close();
     if (config.debug) {
-        // console.log("ret: " + JSON.stringify(res))
-        console.log("No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
+        console.log("Delete res: " + JSON.stringify(res))
+        console.log("Delete : No. of modified recs: " + res.result.nModified + " ,Ok: " + res.result.ok)
     }
 }
 

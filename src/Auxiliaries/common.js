@@ -42,7 +42,7 @@ function getZippedFileNames(zippedRawFiles){
 
 function extractZippedFile(zippedRawFiles, path){
     var zip = new admzip(zippedRawFiles.data);
-    zip.extractAllTo(path,true);
+    zip.extractAllTo(path,false);
     moveFiles(path,path);
     let items = fs.readdirSync(path)
     for (var i=0; i<items.length; i++) {

@@ -4,6 +4,7 @@ const config = require('../config.json');
 const fs = require('fs');
 var nodemailer = require('nodemailer');
 
+
 async function processRawFiles(){
 
     try {

@@ -44,7 +44,7 @@ router.post('/', async function (req, res) {
     let metaFile = req.files.meta;
     let dataFiles = req.files.raw;
 
-    let retVal = await modification.modifySubmission(submission, metaFile, dataFiles, req.session);
+    let retVal = await modification.modifySubmission(submission[0], metaFile, dataFiles, req.session);
     // console.log("**retVal**" + JSON.stringify(retVal))
     if(!retVal.success)
         res.render('upload', {title: 'Nature\'s Palette', msg: 'There was an error modifying the submission.\n' + retVal.message, user: req.session.userInfo});
