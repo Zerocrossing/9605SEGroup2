@@ -1,9 +1,0 @@
-Design Goals
-
-	•	Advanced search functions: The search engine must allow users to query the database using three main approaches. Through Metadata (subset of Dublin Core and Darwin Core terms) using logical operators. Through georeferencing using polygon limits on a map. As well as regions within the color-spaces of key models.
-
-	•	Ease of use: The interface should be intuitive and very easy to use for users of any skill level.
-
-	•	Flexibility: Allow for the addition of search terms and visual model metrics as they may change over time.
-
-	•	Scalability: Approximately 1 million files could be uploaded in the first year and the system should be able to support an additional 1-3 million files a year.
