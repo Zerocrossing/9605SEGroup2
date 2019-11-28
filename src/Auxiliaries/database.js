@@ -97,14 +97,26 @@ module.exports.saveData = function (metaObject, fileObject, userInfo, submitType
 module.exports.saveModifiedData = function (metaObject, fileObject, userInfo, submission) {
     //  saveObjectToDb(metaObject, dataCollectionName);
 
-    //appendData(metaObject, userInfo["userName"]);
+    appendData(metaObject, userInfo["userName"]);
 
     // let pathToSave = getLocalPath(userInfo["userName"])+"/Modified"
-    let pathToSave = submission["path"] + "/Modified";
+    let pathToSave = submission["path"];
     saveFileToLocal(fileObject, pathToSave);
-    saveDataToDb(metaObject, pathToSave, userInfo, submission["submitType"]);
+    saveModifiedDataToDb(metaObject, pathToSave, userInfo, submission)
     // savePathToDb(pathToSave);
 };
+
+async function saveModifiedDataToDb(metaObject, pathToSave, userInfo, submit) {
+
+    let metaTobeSaved = []
+    metaObject.forEach(function (elem) {
+        elem["refId"] = submit._id;
+        elem["validationStatus"] = enums.validationStatus.unknown
+        metaTobeSaved.push(elem);
+    })
+
+    saveObjectToDb(metaTobeSaved, dataCollectionName);
+}
 
 // This assumes the metadata file is complete. Should only be called when modifying
 module.exports.insertCompleteRecords = function(metaData, collection){

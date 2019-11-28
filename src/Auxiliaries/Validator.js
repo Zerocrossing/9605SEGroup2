@@ -112,13 +112,9 @@ function checkMandatoryFields(json, basicInfo) {
 }
 
 function validateModificationSubmission(metadata, rawFiles,metaRawFilenames,submission) {
-   // let rawFiles = rawFiles;
-   // let metaFile = req.files.meta;
-  //  let basicInfo = req.body;
 
     let rawFileNames = [];
     let basicInfo = {"dataFrom" : submission["submitType"]}
- //   let retVal = common.csvJSON(metaFile.data.toString());
 
     if (typeof rawFiles.length === 'undefined') {
         rawFiles = [rawFiles];
@@ -128,7 +124,6 @@ function validateModificationSubmission(metadata, rawFiles,metaRawFilenames,subm
         let name = rawFiles[i].name;
         if (name.substr(name.length - 3) === 'zip') {
             let ret = common.getZippedFileNames(rawFiles[i])
-            console.log("ret ------" + ret.rawFileNames)
             rawFileNames = rawFileNames.concat(ret.rawFileNames)
         } else {
             rawFileNames.push(name);
