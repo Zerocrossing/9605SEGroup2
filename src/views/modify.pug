@@ -28,3 +28,13 @@ block content
                         td
                             input(type='file' name='raw' multiple)
                 input(type='submit' value='Modify' id="modifySubmit")
+    br
+    div(style='text-align: center;')
+        div(class='modifyTemplate')
+            p Template for modifying 
+                b Reflectance 
+                | files.
+            a(href="/templateModifyDownload?type=reflectanceF")
+                | Field
+            a(href="/templateModifyDownload?type=reflectanceM")
+                | Museum

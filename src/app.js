@@ -50,48 +50,68 @@ app.use('/login', login);
 app.use('/logout', logout);
 app.use('/modify', modify);
 
-// template downloads
-app.get('/templateDownload', function (req, res) {
-    console.log(req.query);
+// upload template downloads
+app.get('/templateUploadDownload', function (req, res) {
     switch (req.query.type) {
         case "reflectanceF":
             res.download('./public/templates/reflectanceF.csv', 'ReflectanceFieldTemplace.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         case "reflectanceM":
             res.download('./public/templates/reflectanceM.csv', 'ReflectanceMuseumTemplace.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         case "transmittanceF":
             res.download('./public/templates/transmittanceF.csv', 'TransmittanceFieldTemplate.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         case "transmittanceM":
             res.download('./public/templates/transmittanceM.csv', 'TransmittanceMuseumTemplate.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         case "irradianceF":
             res.download('./public/templates/irradianceF.csv', 'IrradianceFieldTemplate.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         case "irradianceM":
             res.download('./public/templates/irradianceM.csv', 'IrradianceMuseumTemplate.csv', function (err) {
-                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+                res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
                 console.log(err);
             });
             break;
         default:
-            res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!' });
+            res.render('upload', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
+            break;
+    }
+});
+
+// template downloads
+app.get('/templateModifyDownload', function (req, res) {
+    switch (req.query.type) {
+        case "reflectanceF":
+            res.download('./public/templates/modifyReflectanceF.csv', 'ModifyReflectanceFieldTemplace.csv', function (err) {
+                res.render('modify', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
+                console.log(err);
+            });
+            break;
+        case "reflectanceM":
+            res.download('./public/templates/modifyReflectanceM.csv', 'ModifyReflectanceMuseumTemplace.csv', function (err) {
+                res.render('modify', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
+                console.log(err);
+            });
+            break;
+        default:
+            res.render('modify', { title: 'Nature\'s Palette', msg: 'Template not found!', user: req.session.userInfo });
             break;
     }
 });

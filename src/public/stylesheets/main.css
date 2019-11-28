@@ -96,10 +96,26 @@ button.navButton:hover {
     border-width: 2px;
 }
 
-.uploadTemplate a {
+    .uploadTemplate a {
+        margin: 4px 4px;
+    }
+
+    .uploadTemplate p {
+        margin: 10px 10px;
+    }
+
+.modifyTemplate {
+    display: inline-block;
+    margin: 5px auto;
+    background-color: #808080b8;
+    border-radius: 8px;
+}
+
+.modifyTemplate a {
     margin: 4px 4px;
 }
-.uploadTemplate p {
+
+.modifyTemplate p {
     margin: 10px 10px;
 }
 
