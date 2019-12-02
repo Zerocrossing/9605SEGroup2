@@ -208,9 +208,9 @@ function saveFileToLocal(fileObjects, pathToSave) {
     }
     console.log("###pathToSave: " + pathToSave)
     if (!fs.existsSync(pathToSave)) {
-        fs.mkdirSync(pathToSave, {recursive: true});
-        console.log("###pathToSave does not exist!")
-        fs.mkdirSync(pathToSave, {recursive: true});
+        fs.mkdir(pathToSave, { recursive: true }, function (err1) {
+            console.log(err1);
+        });
     }
     fileObjects.forEach(function (fileObj) {
         let splitExt = fileObj.name.split(".");

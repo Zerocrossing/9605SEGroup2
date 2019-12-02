@@ -4,12 +4,12 @@
   "db": {
     "url": "mongodb+srv://group2:group2pass@cluster0-ytlf6.mongodb.net/test?retryWrites=true&w=majority",
     "dbName": "project",
-    "dataCollection": "dataMarker",
+    "dataCollection": "colMarker",
     "userCollection": "userInfo",
-    "submission":"submissionMarker",
+    "submission":"subMarker",
     "userInfo": "userInfo"
   },
-  "dataFilePath": "../data",
+  "dataFilePath": "./data",
   "searchTerms": [
     "institutionCode",
     "collectionCode",
